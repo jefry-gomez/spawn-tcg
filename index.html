@@ -67,7 +67,7 @@ button:focus-visible{outline:2px solid #fff}button:disabled{opacity:.4;cursor:de
 const {useState,useEffect}=React;
 const html=htm.bind(React.createElement);
 /* BASE DE DATOS: para ampliarla pega más entradas con este mismo formato.
-   key = id interno (único) · number = número oficial (también nombra la imagen ./cartas/cards_powercardz_card_NNN.jpg)
+   key = id interno (único) · number = número oficial (también nombra la imagen ./cartas/NNN.jpg)
    type: personaje | evento | mejora · opcionales: haste (prisa), shield (escudo), demon */
 const CARDS_DATABASE=[
 {"number":"001","key":"spawn","name":"Spawn","type":"personaje","faction":"Earthly Forces","cost":4,"atk":6,"hp":7,"demon":true,"icon":"💀","effect":"Al entrar, si tu Pila de KO tiene cartas, gana +2 ATK."},
