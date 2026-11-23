@@ -1,77 +1,70 @@
-﻿/* SPAWN TCG: Necroplasma · game.js
-   Reglas, IA, audio sintetizado e interfaz. Usa CARDS_DATABASE/D/BYNUM de cards.js. */
-/* COMPAT (temporal): si cards.js aún trae la carta 120 como personaje con clave "Fast Attack",
-   se convierte aquí en el Evento "fast_attack". Cuando actualices cards.js este bloque deja de actuar y puedes borrarlo. */
-if(D['Fast Attack']){delete D['Fast Attack'];D.fast_attack={number:'120',n:'Fast Attack',t:'e',c:2,f:'Event',x:'+2 ATK y Prisa a un personaje propio este turno.',i:'⚡'};BYNUM['120']='fast_attack'}
+/* SPAWN TCG: Necroplasma · game.js
+   Reglas, IA e interfaz (sin audio). Usa CARDS_DATABASE/D/BYNUM de cards.js. */
 let DECK=null;try{const x=JSON.parse(localStorage.getItem('spawnTcgDeck')||'null');if(Array.isArray(x)&&x.length===20&&x.every(n=>BYNUM[n]))DECK=x}catch(e){}
 const BOSSES={
-violator:{n:'Violator',hp:20,i:'😈',d:'Mazo agresivo: coste bajo, prisa y daño directo.',deck:["003","003","041","041","015","015","011","011","008","008","051","051","117","117","004","002","005","094","094","052"]},
-wynn:{n:'Jason Wynn / CIA',hp:22,i:'🕴️',d:'Táctico: mejoras, escudos y Stasis Field.',deck:["053","053","053","094","054","054","054","070","070","063","063","004","004","002","117","117","064","064","014","051"]},
-malebolgia:{n:'Malebolgia',hp:25,i:'👁️',d:'Jefe: 25 HP iniciales y cartas pesadas.',deck:["119","119","005","005","070","070","120","120","030","030","001","001","003","004","004","052","051","117","064","053"]}};
-/* AUDIO sintetizado (Web Audio API, sin archivos) */
-let AC=null,SND=(()=>{try{return localStorage.getItem('spawnTcgSnd')!=='0'}catch(e){return true}})(),FID=0;
-const au=()=>{try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}catch(e){}return AC};
-function tone(f,d,ty,v,t0,f2){const a=au();if(!a)return;const t=a.currentTime+(t0||0),o=a.createOscillator(),gn=a.createGain();o.type=ty||'sine';o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);gn.gain.setValueAtTime(v||.2,t);gn.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(gn);gn.connect(a.destination);o.start(t);o.stop(t+d+.02)}
-function noise(d,v,t0){const a=au();if(!a)return;const n=Math.floor(a.sampleRate*d),b=a.createBuffer(1,n,a.sampleRate),x=b.getChannelData(0);for(let i=0;i<n;i++)x[i]=(Math.random()*2-1)*(1-i/n);const r=a.createBufferSource(),gn=a.createGain();r.buffer=b;gn.gain.value=v;r.connect(gn);gn.connect(a.destination);r.start(a.currentTime+(t0||0))}
-const SFX={
-place:()=>{tone(880,.25,'square',.08);tone(1318,.2,'triangle',.07,.03);tone(1760,.12,'sine',.05,.05);noise(.06,.15)},
-hit:()=>{tone(140,.4,'sine',.6,0,38);tone(90,.25,'sawtooth',.2,0,40);noise(.2,.35)},
-energy:()=>{tone(70,.7,'sawtooth',.14,0,140);tone(73,.7,'square',.06,0,146);tone(420,.5,'sine',.05,.1,1200)},
-win:()=>{[[147,0],[175,.18],[220,.36],[294,.54]].forEach(([f,t])=>{tone(f,.5,'sawtooth',.14,t);tone(f/2,.5,'square',.1,t)});tone(294,1.4,'sawtooth',.16,.8);tone(147,1.4,'square',.1,.8);tone(349,1.4,'triangle',.08,.8)},
-lose:()=>{[[220,0],[196,.3],[175,.6],[110,.9]].forEach(([f,t])=>tone(f,.5,'sawtooth',.14,t,f*.96))},
-guard:()=>{tone(520,.08,'square',.09);tone(390,.14,'triangle',.08,.04);noise(.05,.18)},
-stance:()=>{tone(300,.14,'sawtooth',.1,0,700);noise(.05,.1)},
-trap:()=>{tone(1200,.35,'sawtooth',.12,0,200);tone(600,.3,'square',.08,.05,100);noise(.15,.3)},
-shuffle:()=>{for(let i=0;i<6;i++)noise(.05,.14,i*.06)},
-buff:()=>{tone(523,.15,'sine',.1);tone(659,.15,'sine',.1,.08);tone(784,.22,'sine',.1,.16)},
-deckout:()=>{tone(110,.6,'sawtooth',.25,0,40);noise(.4,.3)},
-discard:()=>{tone(200,.15,'triangle',.1,0,100);noise(.08,.15)}};
-const sfx=n=>{if(SND&&SFX[n])try{SFX[n]()}catch(e){}};
+violator:{n:'Violator',hp:20,i:'😈',d:'Mazo agresivo: coste bajo, prisa y daño directo.',deck:["003","003","041","041","013","013","072","048","048","011","011","015","015","008","055","055","094","094","051","120"]},
+wynn:{n:'Jason Wynn / CIA',hp:22,i:'🕴️',d:'Táctico: mejoras, cadenas, escudos y Stasis Field.',deck:["053","053","094","078","078","075","075","054","054","070","070","082","082","063","004","004","117","117","090","051"]},
+malebolgia:{n:'Malebolgia',hp:25,i:'👁️',d:'Jefe: 25 HP iniciales, demonios y la Mano de Malebolgia.',deck:["119","119","005","005","014","038","038","039","039","030","030","001","001","085","085","087","087","052","051","055"]}};
 const POL={violator:{face:4,trap:.2,guard:.1},wynn:{face:0,trap:.6,guard:.55},malebolgia:{face:2,trap:.3,guard:.3}};
 /* Eventos "hostiles": los que Grandma Blake puede anular (jugados: HOSTILE · como trampa con efecto real: HTRAP) */
 const HOSTILE=['fire','stasis','blast','hand'],HTRAP=['fire','stasis'];
+const OWN_EQ=['cia','biggun','cape','horse'];   // Mejoras que se equipan a un personaje propio
 let UID=0;
-const mk=id=>({u:++UID,id,atk:D[id].a,hp:D[id].h,mx:D[id].h,rdy:false,fz:false,sh:false,n:1,m:'a',tg:false,fn:false,ak:false,ta:0,eq:null,gb:false});
+const mk=id=>({u:++UID,id,atk:D[id].a,hp:D[id].h,mx:D[id].h,rdy:false,fz:false,sh:false,n:1,m:'a',tg:false,fn:false,ak:false,ta:0,eq:null,gb:false,ha:false,cp:false,chn:false});
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const mkSide=(s,b)=>{const B=b&&BOSSES[b],dk=s==='p'?(DECK||DEF_DECK):(B?B.deck:DEF_DECK),hp=s==='e'&&B?B.hp:20;return{hp,mhp:hp,deck:shuffle(dk.map(n=>BYNUM[n])),hand:[],f:[null,null,null],ko:[],trap:null,sup:null}};
 const opp=s=>s==='p'?'e':'p';
 const nm=s=>s==='p'?'Tú':'Rival';
+/* Referencia a carta dentro del historial: se pinta como [001 · Spawn] (verde = tuya, rojo = del rival) */
+const C=(id,s)=>`«${id}|${s}»`;
 const L=(g,t)=>{g.log.unshift(t);if(g.log.length>60)g.log.length=60};
 const E=(g,e)=>g.ev.push(e);
 const clamp=v=>Math.max(-10,Math.min(10,v));
 function draw(g,s){const S=g[s];
- if(!S.deck.length){const had=S.ko.length;S.hp-=5;E(g,{k:'num',s,i:'hp',t:'-5',c:'r'});E(g,{k:'hit',s,i:'hp'});E(g,{k:'snd',n:'deckout'});
+ if(!S.deck.length){const had=S.ko.length;S.hp-=5;E(g,{k:'num',s,i:'hp',t:'-5',c:'r'});E(g,{k:'hit',s,i:'hp'});E(g,{k:'shake'});
   if(had){S.deck=shuffle(S.ko);S.ko=[];L(g,`${nm(s)}: mazo vacío. Baraja su Pila de KO (${had}) y recibe 5 de daño.`)}else L(g,`${nm(s)}: mazo vacío y sin Pila de KO, recibe 5 de daño.`)}
  if(S.deck.length)S.hand.push(S.deck.pop())}
-function win(g){if(g.over)return;if(g.p.hp<=0)g.over='e';else if(g.e.hp<=0)g.over='p';if(g.over)E(g,{k:'snd',n:g.over==='p'?'win':'lose'})}
+function win(g){if(g.over)return;if(g.p.hp<=0)g.over='e';else if(g.e.hp<=0)g.over='p'}
 function startTurn(g,s){g.turn=s;g.ph='main';g.ai='main';g.at=null;
  for(const x of['p','e'])g[x].f.forEach(u=>{if(u)u.sh=false});
- g[s].f.forEach((u,i)=>{if(u){u.tg=false;if(u.fn){u.fz=true;u.fn=false}u.rdy=!u.fz;u.n=0;u.ak=false;const r=D[u.id].rg;if(r&&u.hp<u.mx){const h=Math.min(r,u.mx-u.hp);u.hp+=h;E(g,{k:'num',s,i,t:'+'+h+' HP',c:'g'})}}});
+ g[s].f.forEach((u,i)=>{if(u){u.tg=false;if(u.fn){u.fz=true;u.fn=false}u.rdy=!u.fz&&!u.chn;u.n=0;u.ak=false;const r=D[u.id].rg;if(r&&u.hp<u.mx){const h=Math.min(r,u.mx-u.hp);u.hp+=h;E(g,{k:'num',s,i,t:'+'+h+' HP',c:'g'})}}});
+ if(g[s].sup&&g[s].sup.id==='medic')g[s].f.forEach((u,i)=>{if(u&&u.hp<u.mx){u.hp++;E(g,{k:'num',s,i,t:'+1 HP',c:'g'})}});
  draw(g,s);L(g,`— Turno ${s==='p'?'tuyo':'del rival'} (Necroplasma: ${s==='p'?g.m:-g.m}) —`);win(g)}
-function trim(g,s){const S=g[s];while(S.hand.length>7){let k=S.hand.length-1;if(s==='e')k=S.hand.reduce((b,id,i)=>D[id].c<D[S.hand[b]].c?i:b,0);const id=S.hand.splice(k,1)[0];S.ko.push(id);E(g,{k:'snd',n:'discard'});L(g,`${nm(s)} descarta ${D[id].n} por límite de mano (7).`)}}
+function trim(g,s){const S=g[s];while(S.hand.length>7){let k=S.hand.length-1;if(s==='e')k=S.hand.reduce((b,id,i)=>D[id].c<D[S.hand[b]].c?i:b,0);const id=S.hand.splice(k,1)[0];S.ko.push(id);L(g,`${nm(s)} descarta ${C(id,s)} por límite de mano (7).`)}}
 function endTurn(g,s,en){if(s==='p')g.mull=false;trim(g,s);g[s].f.forEach(u=>{if(u){u.fz=false;if(u.ta){u.atk-=u.ta;u.ta=0}}});g.m=clamp(s==='p'?-en:en);startTurn(g,opp(s))}
 function newGame(b){const g={p:mkSide('p'),e:mkSide('e',b),m:3,turn:'p',ph:'main',ai:'main',log:[],over:null,ev:[],boss:b,mull:true,at:null};
  for(let i=0;i<4;i++){draw(g,'p');draw(g,'e')}L(g,'¡Duelo contra '+BOSSES[b].n+'! Tienes 3 de Necroplasma.');startTurn(g,'p');return g}
 const guarded=S=>S.f.some(u=>u&&u.m==='g');
 
 /* ---- Mejoras continuas (fila de Apoyo) ---- */
-/* Grandma Blake: +2 HP continuo a los personajes Earthly Forces de su dueño mientras esté en Apoyo. Se re-sincroniza tras cada cambio de campo. */
-function sync(g){for(const s of['p','e']){const S=g[s],on=!!S.sup&&S.sup.id==='grandma';
- S.f.forEach((u,i)=>{if(!u)return;const ok=on&&D[u.id].f.includes('Earthly Forces');
-  if(ok&&!u.gb){u.gb=true;u.hp+=2;u.mx+=2;E(g,{k:'num',s,i,t:'+2 HP',c:'g'})}
-  else if(!ok&&u.gb){u.gb=false;u.mx-=2;if(u.hp>u.mx)u.hp=u.mx}})}}
-function applyEq(g,s,u,sp){const i=g[s].f.indexOf(u);
- if(sp.id==='cia'){if(sp.md==='atk')u.atk+=3;else{u.hp+=4;u.mx+=4}E(g,{k:'num',s,i,t:sp.md==='atk'?'+3 ATK':'+4 HP',c:'g'})}
- else if(sp.id==='biggun'){u.atk+=4;E(g,{k:'num',s,i,t:'+4 ATK',c:'g'})}}
+/* Auras: Grandma Blake (+2 HP a Earthly Forces) y Hellfire Aura (+1 ATK a demonios) mientras estén en Apoyo.
+   Se re-sincronizan tras cada cambio de campo, así afectan también a los personajes que entran después. */
+function sync(g){for(const s of['p','e']){const S=g[s],a=S.sup&&S.sup.id;
+ S.f.forEach((u,i)=>{if(!u)return;const f=D[u.id],gb=a==='grandma'&&f.f.includes('Earthly Forces'),ha=a==='hellfire'&&!!f.d;
+  if(gb&&!u.gb){u.gb=true;u.hp+=2;u.mx+=2;E(g,{k:'num',s,i,t:'+2 HP',c:'g'})}
+  else if(!gb&&u.gb){u.gb=false;u.mx-=2;if(u.hp>u.mx)u.hp=u.mx}
+  if(ha&&!u.ha){u.ha=true;u.atk+=1;E(g,{k:'num',s,i,t:'+1 ATK',c:'g'})}
+  else if(!ha&&u.ha){u.ha=false;u.atk-=1}})}}
+function applyEq(g,sp,u){const s=sp.ts,i=g[s].f.indexOf(u),n=(t,c)=>E(g,{k:'num',s,i,t,c:c||'g'});
+ if(sp.id==='cia'){if(sp.md==='atk')u.atk+=3;else{u.hp+=4;u.mx+=4}n(sp.md==='atk'?'+3 ATK':'+4 HP')}
+ else if(sp.id==='biggun'){u.atk+=4;n('+4 ATK')}
+ else if(sp.id==='cape'){u.cp=true;n('🛡️ ESCUDO')}
+ else if(sp.id==='horse'){u.atk+=2;u.hp+=3;u.mx+=3;n('+2 ATK +3 HP')}
+ else if(sp.id==='chains'){u.chn=true;u.rdy=false;n('⛓️','b')}}
 function revertEq(u,sp){
  if(sp.id==='cia'){if(sp.md==='atk')u.atk-=3;else{u.mx-=4;if(u.hp>u.mx)u.hp=u.mx}}
  else if(sp.id==='biggun')u.atk-=4;
- u.eq=null}
+ else if(sp.id==='cape')u.cp=false;
+ else if(sp.id==='horse'){u.atk-=2;u.mx-=3;if(u.hp>u.mx)u.hp=u.mx}
+ else if(sp.id==='chains')u.chn=false;
+ if(sp.id!=='chains')u.eq=null}
 /* Saca la Mejora de la ranura de Apoyo, revierte su efecto y la manda a la Pila de KO */
 function dropSup(g,s,why){const S=g[s],sp=S.sup;if(!sp)return;
- if(sp.u&&S.f.includes(sp.u))revertEq(sp.u,sp);
- S.ko.push(sp.id);S.sup=null;L(g,`${D[sp.id].n} (${nm(s)}) ${why||'se retira'} y va a la Pila de KO.`);sync(g)}
-/* Grandma Blake anula el primer Evento enemigo jugado contra su dueño (side s). Devuelve true si lo anuló. */
+ const U=g[sp.ts||s];if(sp.u&&U.f.includes(sp.u))revertEq(sp.u,sp);
+ S.ko.push(sp.id);S.sup=null;L(g,`${C(sp.id,s)} (${nm(s)}) ${why||'se retira'} y va a la Pila de KO.`);sync(g)}
+/* Suelta cualquier Mejora (de cualquier jugador) que esté ligada a este personaje */
+function detach(g,u){for(const x of['p','e']){const sp=g[x].sup;if(sp&&sp.u===u)dropSup(g,x,'pierde a su portador')}}
+/* Grandma Blake anula el primer Evento enemigo jugado contra su dueño (lado s). Devuelve true si lo anuló. */
 function gblock(g,s){const S=g[s];if(!S.sup||S.sup.id!=='grandma')return false;
  E(g,{k:'reveal',id:'grandma',s,t:'¡Grandma Blake anula el Evento!'});
  dropSup(g,s,'anula el primer Evento enemigo');return true}
@@ -80,64 +73,78 @@ function spring(g,o,why,ref){const O=g[o],id=O.trap;if(!id)return false;O.trap=n
  const u=g[ref.s].f[ref.i];let neg=false;
  E(g,{k:'reveal',id,s:o,trap:true,t:(o==='p'?'Activas tu Trampa: ':'El Rival activa su Trampa: ')+D[id].n});
  E(g,{k:'num',s:o,i:'trap',t:'¡TRAMPA!',c:'b'});
- L(g,`¡Trampa de ${nm(o)}! Se revela ${D[id].n} (${why==='direct'?'ataque directo':'invocación de coste 5+'}).`);
+ L(g,`¡Trampa de ${nm(o)}! Se revela ${C(id,o)} (${why==='direct'?'ataque directo':'invocación de coste 5+'}).`);
  if(HTRAP.includes(id)&&gblock(g,ref.s)){O.ko.push(id);return false}
- if(id==='fire'){if(u&&u.id!=='angela'){hit(g,ref.s,ref.i,5);L(g,`Elemental Fire quema a ${D[u.id].n}.`);if(u.hp<=0)neg=true}else L(g,'El fuego no afecta a Angela.')}
- else if(id==='stasis'){if(u){u.fn=true;u.rdy=false;E(g,{k:'num',s:ref.s,i:ref.i,t:'❄️',c:'b'});L(g,`${D[u.id].n} queda congelado.`);neg=why==='direct'}}
- else if(id==='bums'){if(O.ko.length){const k=O.ko.pop();O.hand.push(k);L(g,`Recupera ${D[k].n} de la Pila de KO.`)}}
+ if(id==='fire'){if(u&&u.id!=='angela'){hit(g,ref.s,ref.i,5);L(g,`${C('fire',o)} quema a ${C(u.id,ref.s)}.`);if(u.hp<=0)neg=true}else L(g,'El fuego no afecta a Angela.')}
+ else if(id==='stasis'){if(u){u.fn=true;u.rdy=false;E(g,{k:'num',s:ref.s,i:ref.i,t:'❄️',c:'b'});L(g,`${C(u.id,ref.s)} queda congelado.`);neg=why==='direct'}}
+ else if(id==='bums'){if(O.ko.length){const k=O.ko.pop();O.hand.push(k);L(g,`Recupera ${C(k,o)} de la Pila de KO.`)}}
  else if(id==='media'){draw(g,o);draw(g,o);L(g,'Media Contact: roba 2 cartas.')}
  O.ko.push(id);return neg}
 function setTrap(g,s,hi){const S=g[s],id=S.hand[hi];if(!id||S.trap||D[id].t!=='e')return;
  S.hand.splice(hi,1);S.trap=id;if(s==='p')g.mull=false;
- g.m=clamp(g.m+(s==='p'?-1:1));E(g,{k:'snd',n:'guard'});L(g,`${nm(s)} coloca una carta boca abajo (coste 1).`);
+ g.m=clamp(g.m+(s==='p'?-1:1));L(g,`${nm(s)} coloca una carta boca abajo (coste 1).`);
  if(!g.over&&((s==='p'&&g.m<0)||(s==='e'&&g.m>0))){L(g,`${nm(s)} cruza el medidor: el turno termina.`);endTurn(g,s,Math.abs(g.m))}}
-function mulligan(g){const S=g.p;if(!g.mull)return;g.mull=false;S.deck.push(...S.hand);S.hand=[];shuffle(S.deck);for(let i=0;i<4;i++)draw(g,'p');E(g,{k:'snd',n:'shuffle'});L(g,'Mulligan: barajas tu mano y robas 4 cartas nuevas.')}
-function toggle(g,s,i){const u=g[s].f[i];if(!u||u.tg)return;u.m=u.m==='g'?'a':'g';u.tg=true;E(g,{k:'snd',n:u.m==='g'?'guard':'stance'});E(g,{k:'num',s,i,t:u.m==='g'?'🛡️ GUARDIA':'⚔️ ATAQUE',c:'b'});L(g,`${D[u.id].n} (${nm(s)}) pasa a modo ${u.m==='g'?'Guardia':'Ataque'}.`)}
-function hit(g,s,i,n,cb){const u=g[s].f[i];if(!u)return;const d=D[u.id];if(cb&&d.ar)n=Math.max(0,n-d.ar);if(d.sd&&!u.sh){u.sh=true;n=Math.max(0,n-2)}u.hp-=n;E(g,{k:'num',s,i,t:n?'-'+n:'🛡️',c:'r'});if(n)E(g,{k:'hit',s,i})}
-/* Retira personajes muertos (su Mejora equipada los acompaña a la Pila de KO) y re-sincroniza Grandma Blake */
-function sweep(g){for(const s of['p','e']){const S=g[s];S.f.forEach((u,i)=>{if(u&&u.hp<=0){S.ko.push(u.id);S.f[i]=null;L(g,`${D[u.id].n} (${nm(s)}) cae a la Pila de KO.`);
-  if(S.sup&&S.sup.u===u){S.ko.push(S.sup.id);L(g,`${D[S.sup.id].n} (${nm(s)}) cae a la Pila de KO junto a su portador.`);S.sup=null}}})}
+function mulligan(g){const S=g.p;if(!g.mull)return;g.mull=false;S.deck.push(...S.hand);S.hand=[];shuffle(S.deck);for(let i=0;i<4;i++)draw(g,'p');L(g,'Mulligan: barajas tu mano y robas 4 cartas nuevas.')}
+function toggle(g,s,i){const u=g[s].f[i];if(!u||u.tg)return;u.m=u.m==='g'?'a':'g';u.tg=true;E(g,{k:'num',s,i,t:u.m==='g'?'🛡️ GUARDIA':'⚔️ ATAQUE',c:'b'});L(g,`${C(u.id,s)} (${nm(s)}) pasa a modo ${u.m==='g'?'Guardia':'Ataque'}.`)}
+function hit(g,s,i,n,cb){const u=g[s].f[i];if(!u)return;const d=D[u.id];if(cb&&d.ar)n=Math.max(0,n-d.ar);if((d.sd||u.cp)&&!u.sh){u.sh=true;n=Math.max(0,n-2)}u.hp-=n;E(g,{k:'num',s,i,t:n?'-'+n:'🛡️',c:'r'});if(n){E(g,{k:'hit',s,i});if(n>=5)E(g,{k:'shake'})}}
+/* Retira personajes muertos (su Mejora equipada, o las Cadenas que lo ataban, también caen) y re-sincroniza las auras */
+function sweep(g){for(const s of['p','e']){const S=g[s];S.f.forEach((u,i)=>{if(u&&u.hp<=0){S.ko.push(u.id);S.f[i]=null;L(g,`${C(u.id,s)} (${nm(s)}) cae a la Pila de KO.`);
+  for(const x of['p','e']){const X=g[x];if(X.sup&&X.sup.u===u){X.ko.push(X.sup.id);L(g,`${C(X.sup.id,x)} cae a la Pila de KO junto a su portador.`);X.sup=null}}}})}
  sync(g)}
 function tg(g,s,id){const S=g[s],T=g[opp(s)],ix=(F,ok)=>F.map((u,i)=>u&&ok(u)?i:-1).filter(i=>i>=0);
- if(id==='cia'||id==='biggun'||id==='fast_attack')return ix(S.f,()=>1);
+ if(OWN_EQ.includes(id)||id==='fast_attack')return ix(S.f,()=>1);
  if(id==='fire')return ix(T.f,u=>u.id!=='angela');
- if(id==='stasis')return ix(T.f,()=>1);
+ if(id==='stasis'||id==='chains')return ix(T.f,()=>1);
+ if(id==='hand')return S.f.includes(null)?ix(T.f,u=>D[u.id].c<=5):[];
  return null}
 function can(g,s,id){const t=tg(g,s,id);if(t)return t.length>0;if(D[id].t==='c')return g[s].f.includes(null)||(id==='spawn'&&g[s].f.some(u=>u&&u.id==='alsimmons'));if(id==='bums')return g[s].ko.length>0;return true}
 function play(g,s,hi,o){const S=g[s],T=g[opp(s)],id=S.hand[hi],c=D[id];if(!id)return;
  const old=c.t==='c'?S.f[o.slot]:null,ev=id==='spawn'&&old&&old.id==='alsimmons',cost=ev?c.c-2:c.c;
  S.hand.splice(hi,1);if(s==='p')g.mull=false;g.m=clamp(g.m+(s==='p'?-cost:cost));
- L(g,`${nm(s)} juega ${c.n} (coste ${cost}${ev?', evoluciona a Al Simmons':''}).`);
+ L(g,`${nm(s)} juega ${C(id,s)} (coste ${cost}${ev?', evoluciona a Al Simmons':''}).`);
  if(c.t==='c'){const u=mk(id);if(c.hs||(ev&&old.rdy))u.rdy=true;
-  if(id==='spawn'&&S.ko.length){u.atk+=2;E(g,{k:'num',s,i:o.slot,t:'+2 ATK',c:'g'});L(g,'Spawn gana +2 ATK por la Pila de KO.')}
-  S.f[o.slot]=u;E(g,{k:'snd',n:'place'});
-  if(ev){u.ak=old.ak;if(S.sup&&S.sup.u===old){S.sup.u=u;u.eq=S.sup.id;applyEq(g,s,u,S.sup)}}
+  if(id==='spawn'&&S.ko.length){u.atk+=2;E(g,{k:'num',s,i:o.slot,t:'+2 ATK',c:'g'});L(g,`${C(id,s)} gana +2 ATK por la Pila de KO.`)}
+  S.f[o.slot]=u;
+  if(ev){u.ak=old.ak;if(S.sup&&S.sup.u===old){S.sup.u=u;u.eq=S.sup.id;applyEq(g,S.sup,u)}}
   sync(g);
   if(c.c>=5&&T.trap){spring(g,opp(s),'summon',{s,i:o.slot});sweep(g)}
   if(S.f[o.slot]===u){
-  if(id==='overtkill'){T.f.forEach((_,i)=>hit(g,opp(s),i,2));L(g,'Overtkill: 2 de daño a cada personaje enemigo.')}
-  if(id==='sam'){S.f.forEach((x,i)=>{if(x&&x!==u){x.atk++;E(g,{k:'num',s,i,t:'+1 ATK',c:'g'})}});L(g,'Sam & Twitch: tus demás personajes ganan +1 ATK.')}
-  if(id==='commando'){T.hp-=3;E(g,{k:'num',s:opp(s),i:'hp',t:'-3',c:'r'});E(g,{k:'hit',s:opp(s),i:'hp'});L(g,'Commando Spawn: 3 de daño directo al HP rival.')}
-  if(id==='cogliostro'){g.m=clamp(g.m+(s==='p'?1:-1));draw(g,s);L(g,'Cogliostro: +1 Necroplasma y roba 1 carta.')}}}
- else if(c.t==='m'){E(g,{k:'snd',n:'energy'});
+  if(id==='overtkill'){T.f.forEach((_,i)=>hit(g,opp(s),i,2));L(g,`${C(id,s)}: 2 de daño a cada personaje enemigo.`)}
+  if(id==='sam'){S.f.forEach((x,i)=>{if(x&&x!==u){x.atk++;E(g,{k:'num',s,i,t:'+1 ATK',c:'g'})}});L(g,`${C(id,s)}: tus demás personajes ganan +1 ATK.`)}
+  if(id==='commando'){T.hp-=3;E(g,{k:'num',s:opp(s),i:'hp',t:'-3',c:'r'});E(g,{k:'hit',s:opp(s),i:'hp'});L(g,`${C(id,s)}: 3 de daño directo al HP rival.`)}
+  if(id==='tony'){T.hp-=2;E(g,{k:'num',s:opp(s),i:'hp',t:'-2',c:'r'});E(g,{k:'hit',s:opp(s),i:'hp'});L(g,`${C(id,s)}: 2 de daño directo al HP rival.`)}
+  if(id==='cogliostro'){g.m=clamp(g.m+(s==='p'?1:-1));draw(g,s);L(g,`${C(id,s)}: +1 Necroplasma y roba 1 carta.`)}
+  if(id==='terry'){draw(g,s);L(g,`${C(id,s)}: robas 1 carta.`)}
+  if(id==='wanda'){S.f.forEach((x,i)=>{if(x&&x!==u&&x.hp<x.mx){const h=Math.min(2,x.mx-x.hp);x.hp+=h;E(g,{k:'num',s,i,t:'+'+h+' HP',c:'g'})}});L(g,`${C(id,s)}: tus demás personajes recuperan 2 HP.`)}
+  if(id==='redeemer'){const h=Math.min(4,S.mhp-S.hp);S.hp+=h;E(g,{k:'num',s,i:'hp',t:'+'+h+' HP',c:'g'});L(g,`${C(id,s)}: recuperas ${h} HP.`)}
+  if(id==='curse'){let b=-1;T.f.forEach((x,i)=>{if(x&&(b<0||x.atk>T.f[b].atk))b=i});
+   if(b>=0){const x=T.f[b];x.atk=Math.max(0,x.atk-2);E(g,{k:'num',s:opp(s),i:b,t:'-2 ATK',c:'r'});L(g,`${C(id,s)} maldice a ${C(x.id,opp(s))}: -2 ATK.`)}}}}
+ else if(c.t==='m'){
   if(S.sup)dropSup(g,s,'es reemplazada');
-  S.sup={id,u:null,md:o.md||null};E(g,{k:'buff',s,i:'sup'});
-  if(id==='cia'||id==='biggun'){const u=S.f[o.tg];S.sup.u=u;u.eq=id;applyEq(g,s,u,S.sup);
-   if(id==='cia')L(g,`${D[u.id].n} recibe ${o.md==='atk'?'+3 ATK':'+4 HP'} mientras C.I.A. Contact siga en Apoyo.`);
-   else{if(u.n&&!u.ak&&!u.fz)u.rdy=true;L(g,'Big Gun: '+D[u.id].n+' gana +4 ATK mientras siga en Apoyo.')}}
-  if(id==='grandma'){sync(g);L(g,'Grandma Blake: tus personajes Earthly Forces ganan +2 HP mientras siga en Apoyo.')}}
+  const ts=id==='chains'?opp(s):s;
+  S.sup={id,u:null,md:o.md||null,ts};E(g,{k:'buff',s,i:'sup'});
+  if(OWN_EQ.includes(id)||id==='chains'){const u=g[ts].f[o.tg];S.sup.u=u;if(id!=='chains')u.eq=id;applyEq(g,S.sup,u);
+   if(id==='biggun'&&u.n&&!u.ak&&!u.fz&&!u.chn)u.rdy=true;
+   L(g,`${C(id,s)} se ${id==='chains'?'enrolla en':'equipa a'} ${C(u.id,ts)}.`)}
+  else L(g,`${C(id,s)} queda activa en la ranura de Apoyo.`);
+  sync(g)}
  else{
   E(g,{k:'reveal',id,s,t:(s==='p'?'Juegas: ':'El Rival juega: ')+c.n});
   const blk=HOSTILE.includes(id)&&gblock(g,opp(s));
   if(!blk){
-   if(id==='fire'){const u=T.f[o.tg];hit(g,opp(s),o.tg,5);L(g,`Elemental Fire quema a ${D[u.id].n}.`)}
-   if(id==='bums'&&S.ko.length){const k=S.ko.pop();S.hand.push(k);L(g,`Recupera ${D[k].n} de la Pila de KO.`)}
-   if(id==='blast'){T.hp-=3;S.hp-=1;L(g,`Necro-Blast: -3 HP al rival y -1 HP propio (${nm(s)}).`)}
-   if(id==='stasis'){T.f[o.tg].fz=true;E(g,{k:'num',s:opp(s),i:o.tg,t:'❄️',c:'b'});L(g,`${D[T.f[o.tg].id].n} queda congelado.`)}
+   if(id==='fire'){const u=T.f[o.tg];hit(g,opp(s),o.tg,5);L(g,`${C(id,s)} quema a ${C(u.id,opp(s))}.`)}
+   if(id==='bums'&&S.ko.length){const k=S.ko.pop();S.hand.push(k);L(g,`Recupera ${C(k,s)} de la Pila de KO.`)}
+   if(id==='blast'){T.hp-=3;S.hp-=1;L(g,`${C(id,s)}: -3 HP al rival y -1 HP propio (${nm(s)}).`)}
+   if(id==='stasis'){T.f[o.tg].fz=true;E(g,{k:'num',s:opp(s),i:o.tg,t:'❄️',c:'b'});L(g,`${C(T.f[o.tg].id,opp(s))} queda congelado.`)}
    if(id==='fast_attack'){const u=S.f[o.tg];u.atk+=2;u.ta=(u.ta||0)+2;E(g,{k:'num',s,i:o.tg,t:'+2 ATK',c:'g'});
-    if(u.n&&!u.ak&&!u.fz)u.rdy=true;
-    L(g,`Fast Attack: ${D[u.id].n} gana +2 ATK y Prisa este turno.`)}
-   if(id==='media'){draw(g,s);draw(g,s);L(g,'Media Contact: roba 2 cartas.')}}
+    if(u.n&&!u.ak&&!u.fz&&!u.chn)u.rdy=true;
+    L(g,`${C(id,s)}: ${C(u.id,s)} gana +2 ATK y Prisa este turno.`)}
+   if(id==='media'){draw(g,s);draw(g,s);L(g,`${C(id,s)}: roba 2 cartas.`)}
+   if(id==='necroplasm'){g.m=clamp(g.m+(s==='p'?3:-3));L(g,`${C(id,s)}: recuperas 3 de Necroplasma.`)}
+   if(id==='hand'){const k=S.f.indexOf(null),u=T.f[o.tg];
+    if(u&&k>=0&&D[u.id].c<=5){detach(g,u);T.f[o.tg]=null;S.f[k]=u;u.rdy=false;u.n=0;u.tg=false;
+     E(g,{k:'num',s,i:k,t:'✋ CONTROL',c:'b'});L(g,`${C(id,s)}: ${nm(s)} toma el control de ${C(u.id,s)} (entra agotado).`)}
+    else L(g,`${C(id,s)} no encuentra objetivo válido.`)}}
   S.ko.push(id)}
  sweep(g);win(g);
  if(!g.over&&((s==='p'&&g.m<0)||(s==='e'&&g.m>0))){L(g,`${nm(s)} cruza el medidor: el turno termina.`);endTurn(g,s,Math.abs(g.m))}}
@@ -145,14 +152,14 @@ function attack(g,s,ai,ti){const S=g[s],o=opp(s),T=g[o],a=S.f[ai];if(!a||!a.rdy|
  if(ti<0){if(guarded(T))return;a.rdy=false;a.ak=true;E(g,{k:'lunge',s,i:ai});
   if(T.trap&&spring(g,o,'direct',{s,i:ai})){sweep(g);win(g);return}
   if(a.hp<=0){sweep(g);win(g);return}
-  T.hp-=a.atk;E(g,{k:'snd',n:'hit'});E(g,{k:'num',s:o,i:'hp',t:'-'+a.atk,c:'r'});E(g,{k:'hit',s:o,i:'hp'});L(g,`${D[a.id].n} (${nm(s)}) ataca directo: -${a.atk} HP.`)}
- else{const t=T.f[ti];if(!t)return;a.rdy=false;a.ak=true;E(g,{k:'lunge',s,i:ai});E(g,{k:'snd',n:'hit'});const d=D[t.id];let av=a.atk;if(a.id==='angela'&&(d.d||d.c>=4))av+=2;
-  hit(g,o,ti,av,1);hit(g,s,ai,t.atk,1);L(g,`${D[a.id].n} (${nm(s)}) ataca a ${d.n}: ${av} de daño, recibe ${t.atk}.`)}
+  T.hp-=a.atk;E(g,{k:'num',s:o,i:'hp',t:'-'+a.atk,c:'r'});E(g,{k:'hit',s:o,i:'hp'});if(a.atk>=5)E(g,{k:'shake'});L(g,`${C(a.id,s)} ataca directo: -${a.atk} HP.`)}
+ else{const t=T.f[ti];if(!t)return;a.rdy=false;a.ak=true;E(g,{k:'lunge',s,i:ai});const d=D[t.id];let av=a.atk;if(a.id==='angela'&&(d.d||d.c>=4))av+=2;
+  hit(g,o,ti,av,1);hit(g,s,ai,t.atk,1);L(g,`${C(a.id,s)} ataca a ${C(t.id,o)}: ${av} de daño, recibe ${t.atk}.`)}
  sweep(g);win(g)}
 function aiOpts(g,s,id){const S=g[s],T=g[opp(s)],t=tg(g,s,id);
  if(D[id].t==='c'){const e=S.f.indexOf(null);return{slot:e>=0?e:S.f.findIndex(u=>u&&u.id==='alsimmons')}}
- if(id==='cia'||id==='biggun'){const i=t.sort((a,b)=>S.f[b].atk-S.f[a].atk)[0];return{tg:i,md:S.f[i].hp>=5?'atk':'hp'}}
- if(id==='fast_attack'){const w=i=>{const u=S.f[i];return(u.n&&!u.ak&&!u.fz&&u.m!=='g'?10:u.rdy&&u.m!=='g'?5:0)+u.atk};return{tg:t.sort((a,b)=>w(b)-w(a))[0]}}
+ if(OWN_EQ.includes(id)){const i=t.sort((a,b)=>S.f[b].atk-S.f[a].atk)[0];return{tg:i,md:S.f[i].hp>=5?'atk':'hp'}}
+ if(id==='fast_attack'){const w=i=>{const u=S.f[i];return(u.n&&!u.ak&&!u.fz&&!u.chn&&u.m!=='g'?10:u.rdy&&u.m!=='g'?5:0)+u.atk};return{tg:t.sort((a,b)=>w(b)-w(a))[0]}}
  const sc=i=>(id==='fire'&&T.f[i].hp<=5?100:0)+T.f[i].atk;
  if(t)return{tg:t.sort((a,b)=>sc(b)-sc(a))[0]};
  return{}}
@@ -167,7 +174,13 @@ function aiStep(g){const s='e',S=g.e,P=g.p,en=-g.m,pol=POL[g.boss]||POL.malebolg
    if(id==='bums')sc=5;
    if(id==='cia')sc=7;if(id==='biggun')sc=8;if(id==='media')sc=S.hand.length<5?6:1;
    if(id==='grandma')sc=S.f.some(u=>u&&D[u.id].f.includes('Earthly Forces'))?8:3;
-   if(id==='fast_attack')sc=S.f.some(u=>u&&u.n&&!u.ak&&!u.fz&&u.m!=='g')?9:(S.f.some(u=>u&&u.rdy&&u.m!=='g')?5:0);
+   if(id==='fast_attack')sc=S.f.some(u=>u&&u.n&&!u.ak&&!u.fz&&!u.chn&&u.m!=='g')?9:(S.f.some(u=>u&&u.rdy&&u.m!=='g')?5:0);
+   if(id==='necroplasm')sc=S.hand.some(h=>D[h].c>en)?9:2;
+   if(id==='hand')sc=16;
+   if(id==='cape')sc=6;if(id==='horse')sc=7;
+   if(id==='chains')sc=P.f.some(u=>u&&u.atk>=5)?9:4;
+   if(id==='hellfire')sc=S.f.filter(u=>u&&D[u.id].d).length>=2?9:3;
+   if(id==='medic')sc=S.f.some(Boolean)?5:1;
    if(c.t==='m'&&S.sup)sc=0;
    if(c.t==='c'&&!S.f.some(Boolean))sc+=5;
    if(sc>bs){bs=sc;best=i}});
@@ -178,7 +191,7 @@ function aiStep(g){const s='e',S=g.e,P=g.p,en=-g.m,pol=POL[g.boss]||POL.malebolg
   const a=S.f[ai],face=!guarded(P);
   let bi=-1,bsc=0;
   P.f.forEach((t,i)=>{if(!t)return;const d=D[t.id],av=a.atk+(a.id==='angela'&&(d.d||d.c>=4)?2:0);
-   const k=av>=t.hp+(D[t.id].sd&&!t.sh?2:0),sv=t.atk<a.hp;if(!k&&!sv)return;
+   const k=av>=t.hp+((D[t.id].sd||t.cp)&&!t.sh?2:0),sv=t.atk<a.hp;if(!k&&!sv)return;
    const sc=(k?3:0)+(sv?2:0)+d.c/10;if(sc>bsc){bsc=sc;bi=i}});
   const fs=face?(P.hp<=a.atk?100:(P.f.some(Boolean)?1+pol.face:6+pol.face)):-1;
   if(fs>bsc){attack(g,s,ai,-1);return}
@@ -194,14 +207,17 @@ const $=id=>document.getElementById(id),esc=t=>String(t).replace(/"/g,'&quot;');
 let g=null,sh=null,su=null,ch=null,zm=null,dc=false,pick=true,aiT=0,busy=false,gen=0;const an={};
 const ctx=()=>{const mine=g.turn==='p'&&!g.over,hid=mine&&g.ph==='main'&&sh!=null?g.p.hand[sh]:null;return{mine,hid,tl:hid?tg(g,'p',hid):null}};
 const el=(s,i)=>document.querySelector(`[data-s="${s}"][data-i="${i}"]`);
-const OWNT=id=>id==='cia'||id==='biggun'||id==='fast_attack';   // objetivo: personaje propio
-const ENT=id=>id==='fire'||id==='stasis';                        // objetivo: personaje enemigo
+const OWNT=id=>OWN_EQ.includes(id)||id==='fast_attack';          // objetivo: personaje propio
+const ENT=id=>id==='fire'||id==='stasis'||id==='chains'||id==='hand';   // objetivo: personaje enemigo
+/* Convierte las referencias «id|lado» del historial en nombres resaltados y pasables por el ratón */
+const logHTML=t=>String(t).replace(/«([^|»]+)\|([pe])»/g,(m,id,s)=>D[id]?`<span class="lg ${s==='p'?'g':'r'}" data-zid="${id}">[${D[id].number} · ${D[id].n}]</span>`:m);
 
-function cardHTML(id,u,cls='',extra=''){const c=D[id],isC=c.t==='c',a=u?u.atk:c.a,h=u?u.hp:c.h;
+function cardHTML(id,u,cls='',extra=''){const c=D[id],isC=c.t==='c',a=u?u.atk:c.a,h=u?u.hp:c.h,
+ st=u?[u.eq&&D[u.eq].i,u.chn&&'⛓️',u.gb&&'👵',u.ha&&'🌋'].filter(Boolean).join(''):'';
  return `<div class="card ${c.t} ${cls}${u&&u.m==='g'?' guard':''}${u&&!u.rdy&&!u.fz&&!u.fn?' tired':''}" title="${esc(c.n+': '+c.x)}" ${extra}>
  <div class="lc"><div class="sk">💀</div><div class="sv g"><small>COSTE</small>${c.c}</div><div class="sv r"><small>ATK</small>${isC?a:'–'}</div><div class="sv y"><small>HP</small>${isC?h:'–'}</div><div class="no">${c.number}</div></div>
  <div class="rc"><div class="fc">${c.f}</div><div class="fr">${cardArt(c.number,c.i)}</div><div class="nm">${c.n}</div></div>
- ${u?`<div class="bd" title="${u.fz||u.fn?'Congelado':u.rdy?'Listo para atacar':'Agotado'}">${u.fz||u.fn?'❄️':u.rdy?'⚔️':'💤'}</div>`:''}${u&&u.m==='g'?'<div class="md" title="Modo Guardia">🛡️</div>':''}${u&&u.eq?`<div class="eq" title="Equipado: ${esc(D[u.eq].n)}">${D[u.eq].i}</div>`:''}${u&&u.gb?'<div class="ep" title="Grandma Blake: +2 HP">👵</div>':''}</div>`}
+ ${u?`<div class="bd" title="${u.fz||u.fn?'Congelado':u.chn?'Encadenado':u.rdy?'Listo para atacar':'Agotado'}">${u.fz||u.fn?'❄️':u.chn?'⛓️':u.rdy?'⚔️':'💤'}</div>`:''}${u&&u.m==='g'?'<div class="md" title="Modo Guardia">🛡️</div>':''}${st?`<div class="eq" title="Efectos activos sobre este personaje">${st}</div>`:''}</div>`}
 
 /* Fila frontal: Mazo, Pila de KO y 3 casillas de personaje */
 function fieldHTML(s,x){const S=g[s],{hid,tl,mine}=x;
@@ -229,7 +245,7 @@ function renderZoom(){const z=$('zoom'),f=$('zoom-fx');
 
 function render(){const x=ctx(),en=g.turn==='p'?g.m:-g.m,needsT=x.hid&&x.tl!==null;
  hpHTML('e',x);hpHTML('p',x);
- $('e-hand').innerHTML=g.e.hand.map(()=>'<div class="card back" style="--cw:38px"></div>').join('');
+ $('e-hand').innerHTML=g.e.hand.map(()=>'<div class="card back" style="--cw:28px"></div>').join('');
  $('e-field').innerHTML=fieldHTML('e',x);$('p-field').innerHTML=fieldHTML('p',x);
  $('e-support').innerHTML=supportHTML('e',x);$('p-support').innerHTML=supportHTML('p',x);
  $('meter-label').textContent=`Necroplasma de ${g.turn==='p'?'tu':'su'} turno: ${Math.max(0,en)}`;
@@ -240,23 +256,24 @@ function render(){const x=ctx(),en=g.turn==='p'?g.m:-g.m,needsT=x.hid&&x.tl!==nu
  $('btn-trap').hidden=!(x.hid&&D[x.hid].t==='e'&&!g.p.trap);
  $('btn-mull').hidden=!(x.mine&&g.mull&&g.ph==='main');
  $('btn-combat').disabled=!x.mine||g.ph!=='main';$('btn-end').disabled=!x.mine;
- $('log').innerHTML=g.log.map(t=>`<div>${t}</div>`).join('');
+ $('log').innerHTML=g.log.map(t=>`<div>${logHTML(t)}</div>`).join('');
  renderZoom();
  $('ov-boss').hidden=!pick;$('ov-ch').hidden=!ch;$('ov-end').hidden=!g.over||pick;
  if(g.over){$('end-title').textContent=g.over==='p'?'VICTORIA':'DERROTA';$('end-msg').textContent=g.over==='p'?'El Infierno se queda sin campeón.':'El rival te deja sin HP.'}
  const dv=dc&&g.p.hand.length>7;$('ov-disc').hidden=!dv;
- if(dv){$('disc-n').textContent=g.p.hand.length-7;$('disc-hand').innerHTML=g.p.hand.map((id,i)=>cardHTML(id,null,'',`data-d="${i}" data-zid="${id}"`)).join('')}
- if($('btn-sound'))$('btn-sound').textContent=SND?'🔊 SONIDO ON':'🔇 SONIDO OFF'}
+ if(dv){$('disc-n').textContent=g.p.hand.length-7;$('disc-hand').innerHTML=g.p.hand.map((id,i)=>cardHTML(id,null,'',`data-d="${i}" data-zid="${id}"`)).join('')}}
 
-/* ---- Eventos visuales: números flotantes, destellos, sonido ---- */
+/* ---- Eventos visuales: números flotantes, destellos, sacudida ---- */
 function floatNum(e){const t=el(e.s,e.i);if(!t)return;const r=t.getBoundingClientRect(),d=document.createElement('div');
  d.className='fl '+e.c;d.textContent=e.t;d.style.cssText=`position:fixed;left:${r.left+r.width/2}px;top:${r.top+r.height*.25}px`;document.body.appendChild(d);setTimeout(()=>d.remove(),1100)}
 function flash(s,i,cl){const k=s+i;an[k]=(an[k]||'')+' '+cl;const e=el(s,i);if(e)e.classList.add(cl);
  setTimeout(()=>{delete an[k];const e2=el(s,i);if(e2)e2.classList.remove(cl)},520)}
-function runEv(ev){const did={},once=n=>{if(!did[n]){did[n]=1;sfx(n)}};
- ev.forEach(e=>{if(e.k==='reveal')return;if(e.k==='snd')return once(e.n);
-  if(e.k==='num'){floatNum(e);if(e.c==='g'){once('buff');flash(e.s,e.i,'buff')}else if(e.c==='r'&&e.t!=='🛡️')once('hit');return}
-  flash(e.s,e.i,e.k==='lunge'?'lunge'+e.s:e.k)})}
+function shake(){const b=$('board');b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');setTimeout(()=>b.classList.remove('shake'),450)}
+function runEv(ev){let sk=false;
+ ev.forEach(e=>{if(e.k==='reveal')return;if(e.k==='shake'){sk=true;return}
+  if(e.k==='num'){floatNum(e);if(e.c==='g')flash(e.s,e.i,'buff');return}
+  flash(e.s,e.i,e.k==='lunge'?'lunge'+e.s:e.k)});
+ if(sk)shake()}
 
 /* ---- Zona de Activación (#reveal): muestra cada Evento/Trampa 1.2 s en el centro antes de resolverse en el tablero ---- */
 function showReveals(list,done){const rv=$('reveal'),my=gen;let k=0;busy=true;
@@ -265,8 +282,9 @@ function showReveals(list,done){const rv=$('reveal'),my=gen;let k=0;busy=true;
   if(k>=list.length){rv.hidden=true;busy=false;return done()}
   const e=list[k++];
   $('reveal-card').innerHTML=cardHTML(e.id,null);$('reveal-who').textContent=e.t||'';
+  rv.className='reveal'+(e.trap?' trap':'');
   rv.hidden=true;void rv.offsetWidth;rv.hidden=false;       // reinicia la animación
-  sfx(e.trap?'trap':'energy');setTimeout(next,1200)};
+  setTimeout(next,1200)};
  next()}
 
 /* ---- Bucle de partida ---- */
@@ -275,7 +293,7 @@ function upd(f){if(busy)return;const t0=g.turn;g.ev=[];f(g);if(g.turn!==t0){sh=s
  const rvs=g.ev.filter(e=>e.k==='reveal'),rest=g.ev.filter(e=>e.k!=='reveal'),
   fin=()=>{render();runEv(rest);schedule()};
  if(rvs.length)showReveals(rvs,fin);else fin()}
-function start(k){gen++;busy=false;$('reveal').hidden=true;g=newGame(k);pick=false;sh=su=ch=zm=null;dc=false;render();runEv(g.ev);g.ev=[];sfx('energy');schedule()}
+function start(k){gen++;busy=false;$('reveal').hidden=true;g=newGame(k);pick=false;sh=su=ch=zm=null;dc=false;render();runEv(g.ev);g.ev=[];schedule()}
 const doPlay=(hi,o)=>{if(busy)return;sh=null;ch=null;upd(n=>play(n,'p',hi,o))};
 function clickSlot(s,i){const x=ctx();if(!x.mine)return;
  if(g.ph==='main'){if(!x.hid)return;const c=D[x.hid];
@@ -288,33 +306,49 @@ function clickSlot(s,i){const x=ctx();if(!x.mine)return;
 function clickSup(){const x=ctx();if(x.mine&&g.ph==='main'&&x.hid&&D[x.hid].t==='m'&&x.tl===null&&can(g,'p',x.hid))doPlay(sh,{})}
 function face(){if(ctx().mine&&g.ph==='combat'&&su!=null&&!guarded(g.e)){const a=su;su=null;upd(n=>attack(n,'p',a,-1))}}
 
-/* ---- Constructor de mazos e imágenes ---- */
+/* ---- Constructor de mazos e imágenes (Vista Galería / Vista Lista, máx. 2 copias por carta, 20 cartas) ---- */
+const MAXC=2,TYN={c:'Personaje',m:'Mejora',e:'Evento'};
+let MD=[],MV='gal';
 const mgrMsg=t=>{$('mgr-msg').textContent=t};
-const mgrArr=()=>$('mgr-deck').value.split(/[\s,;]+/).filter(Boolean).map(x=>x.padStart(3,'0'));
-function mgrSync(){const a=mgrArr(),bad=a.filter(n=>!BYNUM[n]);$('mgr-count').textContent=`${a.length}/20 cartas${bad.length?' · inválidos: '+bad.join(', '):''}`}
+const cnt=n=>MD.filter(x=>x===n).length;
+const sorted=()=>CARDS_DATABASE.slice().sort((a,b)=>a.number.localeCompare(b.number));
+function mgrAdd(n){if(MD.length>=20){mgrMsg('El mazo ya tiene 20 cartas.');return}if(cnt(n)>=MAXC){mgrMsg(`Máximo ${MAXC} copias de cada carta.`);return}MD.push(n);MD.sort();mgrMsg('');mgrRender()}
+function mgrDel(n){const i=MD.indexOf(n);if(i>=0){MD.splice(i,1);mgrMsg('');mgrRender()}}
+function mgrRender(){const gal=MV==='gal',body=$('mgr-body'),st=body.scrollTop;
+ $('mgr-gal').hidden=!gal;$('mgr-list').hidden=gal;
+ $('mgr-v-gal').classList.toggle('on',gal);$('mgr-v-list').classList.toggle('on',!gal);
+ $('mgr-count').textContent=`${MD.length}/20`;$('mgr-count').className=MD.length===20?'ok':'';
+ if(gal)$('mgr-gal').innerHTML=sorted().map(k=>{const n=cnt(k.number);
+  return `<div class="gt ${n>=MAXC?'full':n?'':'zero'}"><div data-add="${k.number}">${cardHTML(k.key,null)}</div><div class="gc"><button type="button" data-del="${k.number}" title="Quitar una copia">−</button><b>${n}/${MAXC}</b><button type="button" data-add="${k.number}" title="Añadir una copia">+</button></div></div>`}).join('');
+ else $('mgr-list').innerHTML=sorted().map(k=>{const n=cnt(k.number),d=D[k.key];
+  return `<div class="lr ${n?'has':''}" title="${esc(k.effect)}"><span class="ln">${k.number}</span><span>${k.name}</span><span class="lt">${TYN[d.t]}</span><span>⚡${d.c}</span><span class="lq"><button type="button" data-del="${k.number}">[-]</button><b>${n}/${MAXC}</b><button type="button" data-add="${k.number}">[+]</button></span></div>`}).join('');
+ body.scrollTop=st}
 const persist=()=>{try{localStorage.setItem('spawnTcgImgs',JSON.stringify(IM));return true}catch(e){mgrMsg('No hay espacio en localStorage: usa imágenes más pequeñas o quita otras.');return false}};
-function mgrSave(go){const a=mgrArr(),bad=a.filter(n=>!BYNUM[n]);
- if(a.length!==20||bad.length){mgrMsg(bad.length?'Números inválidos: '+bad.join(', '):`El mazo debe tener 20 cartas (tienes ${a.length}).`);return}
- DECK=a;try{localStorage.setItem('spawnTcgDeck',JSON.stringify(a))}catch(e){}mgrMsg('Mazo guardado: se usa desde la próxima partida.');
+function mgrSave(go){
+ if(MD.length!==20){mgrMsg(`El mazo debe tener 20 cartas (tienes ${MD.length}).`);return}
+ DECK=MD.slice();try{localStorage.setItem('spawnTcgDeck',JSON.stringify(DECK))}catch(e){}mgrMsg('Mazo guardado: se usa desde la próxima partida.');
  if(go){$('ov-mgr').hidden=true;start(g.boss)}}
-function mgrOpen(){$('mgr-deck').value=(DECK||DEF_DECK).join(', ');mgrMsg('');mgrSync();$('ov-mgr').hidden=false}
+function mgrOpen(){MD=(DECK||DEF_DECK).slice().sort();mgrMsg('');mgrRender();$('ov-mgr').hidden=false}
+const rulesShow=v=>{$('ov-rules').hidden=!v};
 
 function boot(){
  $('boss-list').innerHTML=Object.entries(BOSSES).map(([k,b])=>`<button class="boss" data-boss="${k}"><div class="bi">${b.i}</div><b>${b.n}</b><small>♥ ${b.hp} HP</small><p>${b.d}</p></button>`).join('');
- $('mgr-card').innerHTML=CARDS_DATABASE.map(k=>`<option value="${k.number}">${k.number} · ${k.name}</option>`).join('');
- $('mgr-chips').innerHTML=CARDS_DATABASE.map(k=>`<button data-add="${k.number}" title="${esc(k.name)}">${k.number}</button>`).join('');
- $('mgr-chips').onclick=e=>{const b=e.target.closest('[data-add]');if(!b)return;const t=$('mgr-deck'),v=t.value.trim().replace(/[,;]$/,'');t.value=v+(v?', ':'')+b.dataset.add;mgrSync()};
- $('mgr-deck').oninput=mgrSync;
- $('mgr-last').onclick=()=>{$('mgr-deck').value=mgrArr().slice(0,-1).join(', ');mgrSync()};
- $('mgr-def').onclick=()=>{$('mgr-deck').value=DEF_DECK.join(', ');mgrSync()};
- $('mgr-del').onclick=()=>{const n=$('mgr-card').value;delete IM[n];persist();mgrMsg('Imagen quitada de '+n);render()};
+ $('mgr-card').innerHTML=sorted().map(k=>`<option value="${k.number}">${k.number} · ${k.name}</option>`).join('');
+ const mgrClick=e=>{const a=e.target.closest('[data-add]'),d=e.target.closest('[data-del]');if(a)mgrAdd(a.dataset.add);else if(d)mgrDel(d.dataset.del)};
+ $('mgr-gal').onclick=mgrClick;$('mgr-list').onclick=mgrClick;
+ $('mgr-v-gal').onclick=()=>{MV='gal';mgrRender()};$('mgr-v-list').onclick=()=>{MV='list';mgrRender()};
+ $('mgr-clear').onclick=()=>{MD=[];mgrMsg('');mgrRender()};
+ $('mgr-def').onclick=()=>{MD=DEF_DECK.slice().sort();mgrMsg('');mgrRender()};
+ $('mgr-del').onclick=()=>{const n=$('mgr-card').value;delete IM[n];persist();mgrMsg('Imagen quitada de '+n);render();mgrRender()};
  $('mgr-save').onclick=()=>mgrSave(false);$('mgr-save-new').onclick=()=>mgrSave(true);$('mgr-close').onclick=()=>{$('ov-mgr').hidden=true};
  $('mgr-file').onchange=e=>{const num=$('mgr-card').value,fs=[...e.target.files];
   fs.forEach(f=>{const m=f.name.match(/(\d{3})/),n=fs.length===1?num:(m&&BYNUM[m[1]]?m[1]:null);
    if(!n){mgrMsg(`"${f.name}": el nombre no tiene un número de carta válido (ej. 001.jpg).`);return}
-   const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,360/im.width),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);IM[n]=c.toDataURL('image/jpeg',.82);if(persist())mgrMsg('Imagen asignada a la carta '+n+'.');render()};im.src=r.result};r.readAsDataURL(f)});e.target.value=''};
+   const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,360/im.width),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);IM[n]=c.toDataURL('image/jpeg',.82);if(persist())mgrMsg('Imagen asignada a la carta '+n+'.');render();mgrRender()};im.src=r.result};r.readAsDataURL(f)});e.target.value=''};
  $('btn-bag').onclick=mgrOpen;$('btn-menu-bag').onclick=mgrOpen;
- if($('btn-sound'))$('btn-sound').onclick=()=>{SND=!SND;try{localStorage.setItem('spawnTcgSnd',SND?'1':'0')}catch(e){}sfx('place');render()};
+ $('btn-rules').onclick=()=>rulesShow(true);$('btn-menu-rules').onclick=()=>rulesShow(true);$('rules-close').onclick=()=>rulesShow(false);
+ $('ov-rules').addEventListener('click',e=>{if(e.target===e.currentTarget)rulesShow(false)});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'){rulesShow(false);$('ov-mgr').hidden=true}});
  $('btn-new').onclick=()=>{pick=true;render()};$('end-new').onclick=()=>{pick=true;render()};
  $('btn-play').onclick=()=>{const hid=ctx().hid;if(hid==null)return;const e=g.p.f.indexOf(null);doPlay(sh,D[hid].t==='c'?{slot:e>=0?e:g.p.f.findIndex(u=>u&&u.id==='alsimmons')}:{})};
  $('btn-trap').onclick=()=>{const hi=sh;sh=null;upd(n=>setTrap(n,'p',hi))};
@@ -324,15 +358,15 @@ function boot(){
  $('ch-atk').onclick=()=>doPlay(sh,{tg:ch.tg,md:'atk'});$('ch-hp').onclick=()=>doPlay(sh,{tg:ch.tg,md:'hp'});$('ch-cancel').onclick=()=>{ch=null;render()};
  $('disc-cancel').onclick=()=>{dc=false;render()};
  document.addEventListener('click',e=>{if(busy)return;const t=e.target;let b;
+  if(b=t.closest('.lg[data-zid]')){zm={id:b.dataset.zid,u:null};renderZoom();return}
   if(b=t.closest('[data-mode]')){const i=+b.dataset.mode;if(su===i)su=null;upd(n=>toggle(n,'p',i));return}
   if(b=t.closest('[data-boss]')){start(b.dataset.boss);return}
   if(b=t.closest('[data-d]')){const i=+b.dataset.d;if(g.p.hand.length-1<=7)dc=false;
-   upd(n=>{const d=n.p.hand.splice(i,1)[0];n.p.ko.push(d);E(n,{k:'snd',n:'discard'});L(n,'Descartas '+D[d].n+' por límite de mano.');if(n.p.hand.length<=7){L(n,'Terminas tu turno.');endTurn(n,'p',3)}});return}
+   upd(n=>{const d=n.p.hand.splice(i,1)[0];n.p.ko.push(d);L(n,'Descartas '+C(d,'p')+' por límite de mano.');if(n.p.hand.length<=7){L(n,'Terminas tu turno.');endTurn(n,'p',3)}});return}
   if(b=t.closest('#p-hand [data-h]')){const i=+b.dataset.h;zm={id:g.p.hand[i],u:null};if(ctx().mine&&g.ph==='main')sh=sh===i?null:i;render();return}
   if(b=t.closest('.slot[data-s]')){const k=b.dataset.i;if(/^\d$/.test(k))clickSlot(b.dataset.s,+k);else if(k==='sup'&&b.dataset.s==='p')clickSup();return}
   if(t.closest('#e-hp'))face()});
- document.addEventListener('pointerover',e=>{const c=e.target.closest('[data-zid]');if(!c)return;
+ document.addEventListener('pointerover',e=>{const c=e.target.closest('[data-zid]');if(!c||c.closest('#ov-mgr'))return;
   const [s,i]=(c.dataset.zu||'').split(','),u=s?g[s].f[+i]:null;if(zm&&zm.id===c.dataset.zid&&zm.u===u)return;zm={id:c.dataset.zid,u};renderZoom()});
  g=newGame('violator');render()}
 boot();
-
