@@ -38,7 +38,7 @@ h2{font:400 16px Bangers,Impact,sans-serif;letter-spacing:1px;margin:8px 0 4px;c
 .bd{position:absolute;right:3px;top:3px;font-size:1.3em;z-index:3}
 select,textarea{background:#0b100e;color:var(--tx);border:1px solid #2a3a30;border-radius:5px;padding:6px;font:inherit;width:100%}
 .ov>div.mgr{max-width:600px;width:calc(100% - 24px);max-height:90vh;overflow:auto;text-align:left}
-.back{background:repeating-linear-gradient(45deg,#1a0709,#1a0709 6px,#2a0b0e 6px,#2a0b0e 12px);border-color:var(--r);cursor:default}
+.back{background:url("cartas/back.jpg") center/cover no-repeat;border-color:#7c3aed;cursor:default}
 .hand .card:hover{transform:translateY(-8px)}
 .card.sel{transform:translateY(-12px);box-shadow:0 0 14px 3px #fff}
 .card.dim{opacity:.55}
@@ -260,3 +260,4 @@ function App(){
  </div>`}
 ReactDOM.createRoot(document.getElementById('r')).render(html`<${App}/>`);
 </script></body></html>
+
