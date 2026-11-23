@@ -4,7 +4,7 @@
 <title>SPAWN TCG: Necroplasma</title>
 <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
 <style>
-:root{color-scheme:dark;--g:#39ff14;--r:#c1121f;--m:#8a9a9e;--tx:#e8efe9;--cw:clamp(66px,9vw,100px);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{color-scheme:dark;--g:#39ff14;--r:#c1121f;--m:#8a9a9e;--tx:#e8efe9;--cw:clamp(58px,8.2vw,96px);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:radial-gradient(ellipse at top,#10230f,#06080a 62%);color:var(--tx);font:13px/1.35 system-ui,sans-serif;min-height:100vh}
@@ -20,24 +20,18 @@ h2{font:400 16px Bangers,Impact,sans-serif;letter-spacing:1px;margin:8px 0 4px;c
 .slot.sel{border:2px solid #fff;box-shadow:0 0 12px 2px #fff}
 .pile{width:calc(var(--cw)*.8);height:calc(var(--cw)*1.42);flex:none;border:2px solid #5b676b;border-radius:6px;background:linear-gradient(#222b29,#0b0f0e);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:10px;color:var(--m);padding:2px}
 .pile b{font-size:20px;color:var(--tx)}
-.card{position:relative;width:var(--cw);height:calc(var(--cw)*1.42);border:2px solid #8d979a;border-radius:6px;background:linear-gradient(135deg,#b08a2a,#4a3a10 45%,#8a6a1e);display:flex;gap:2px;padding:2px;font-size:calc(var(--cw)*.1);line-height:1.1;flex:none;cursor:pointer;transition:transform .12s;overflow:hidden}
+.card{position:relative;width:var(--cw);height:calc(var(--cw)*1.42);border:2px solid #b8c2c6;border-radius:6px;background:linear-gradient(160deg,#1d2723,#090c0b);display:flex;flex-direction:column;padding:3px 3px 2px;font-size:calc(var(--cw)*.1);line-height:1.15;flex:none;cursor:pointer;transition:transform .12s}
 .card.m{border-color:var(--g)}.card.e{border-color:#ff3b3b}
-.lc{width:28%;display:flex;flex-direction:column;align-items:center;gap:calc(var(--cw)*.03);padding:2px 1px;background:linear-gradient(#4b5558,#1c2224);border-radius:3px;min-width:0}
-.sk{font-size:calc(var(--cw)*.2);line-height:1}
-.sv{width:100%;text-align:center;font:700 calc(var(--cw)*.17)/1 system-ui;background:#0b0e0f;border-radius:2px;padding:1px 0}
-.sv small{display:block;font-size:.42em;color:#9aa5a8}
-.sv.g{color:var(--g);text-shadow:0 0 4px var(--g)}.sv.r{color:#ff3b3b}.sv.y{color:#ffd23f}
-.no{margin-top:auto;font:700 calc(var(--cw)*.1) system-ui;color:#d4af37}
-.rc{width:72%;display:flex;flex-direction:column;gap:2px;min-width:0}
-.fc{font:700 calc(var(--cw)*.07)/1.1 system-ui;text-align:right;color:#f1e9c9;text-transform:uppercase;background:#0b0e0f;padding:2px 3px;border-radius:2px;white-space:nowrap;overflow:hidden}
-.fr{flex:1;min-height:0;border:2px solid #c1121f;outline:1px solid #d4af37;border-radius:2px;overflow:hidden;background:#0a0d0b}
-.fr img,.fr svg{width:100%;height:100%;object-fit:cover;display:block}
-.nm{font:400 calc(var(--cw)*.115)/1 Bangers,Impact,sans-serif;text-transform:uppercase;text-align:center;color:#fff;-webkit-text-stroke:calc(var(--cw)*.012) #000;paint-order:stroke fill;text-shadow:1px 1px 0 #000;min-height:2em;display:grid;place-items:center;overflow:hidden}
+.cost{position:absolute;left:-6px;top:-6px;width:calc(var(--cw)*.28);height:calc(var(--cw)*.28);border-radius:50%;background:var(--g);color:#000;font:700 calc(var(--cw)*.17) system-ui;display:grid;place-items:center;border:2px solid #000;z-index:2}
+.nm{font-weight:700;text-align:center;padding-left:calc(var(--cw)*.14);min-height:2.3em;overflow:hidden}
+.art{flex:1;display:grid;place-items:center;font-size:calc(var(--cw)*.4);background:radial-gradient(circle,#1b4a16,#0a0d0b);border:1px solid #2c3b33;border-radius:3px;margin:2px 0}
+.fc{text-align:center;color:var(--m);font-size:.8em}
+.tx{display:none;padding:3px;min-height:4.4em}
 .zoom{--cw:190px;display:flex;justify-content:center}
-.fx{margin-top:8px;padding:8px;border:1px solid #5b676b;border-radius:6px;background:#0b100e}.fx p{margin:4px 0 0}
-.bd{position:absolute;right:3px;top:3px;font-size:1.3em;z-index:3}
-select,textarea{background:#0b100e;color:var(--tx);border:1px solid #2a3a30;border-radius:5px;padding:6px;font:inherit;width:100%}
-.ov>div.mgr{max-width:600px;width:calc(100% - 24px);max-height:90vh;overflow:auto;text-align:left}
+.zoom .tx{display:block}
+.st{display:flex;justify-content:space-between;font-weight:700}
+.a{color:#ff6b5e}.h{color:#6dff5a}
+.bd{position:absolute;right:2px;top:2px;font-size:1.3em}
 .back{background:repeating-linear-gradient(45deg,#1a0709,#1a0709 6px,#2a0b0e 6px,#2a0b0e 12px);border-color:var(--r);cursor:default}
 .hand .card:hover{transform:translateY(-8px)}
 .card.sel{transform:translateY(-12px);box-shadow:0 0 14px 3px #fff}
@@ -66,34 +60,21 @@ button:focus-visible{outline:2px solid #fff}button:disabled{opacity:.4;cursor:de
 <script>
 const {useState,useEffect}=React;
 const html=htm.bind(React.createElement);
-/* BASE DE DATOS: para ampliarla pega más entradas con este mismo formato.
-   key = id interno (único) · number = número oficial (también nombra la imagen ./cartas/NNN.jpg)
-   type: personaje | evento | mejora · opcionales: haste (prisa), shield (escudo), demon */
-const CARDS_DATABASE=[
-{"number":"001","key":"spawn","name":"Spawn","type":"personaje","faction":"Earthly Forces","cost":4,"atk":6,"hp":7,"demon":true,"icon":"💀","effect":"Al entrar, si tu Pila de KO tiene cartas, gana +2 ATK."},
-{"number":"002","key":"angela","name":"Angela","type":"personaje","faction":"Heaven","cost":3,"atk":5,"hp":5,"icon":"🪽","effect":"Al atacar a un demonio o personaje de coste 4+, gana +2 ATK en ese combate."},
-{"number":"003","key":"violator","name":"Violator","type":"personaje","faction":"Hellspawn","cost":4,"atk":7,"hp":5,"demon":true,"haste":true,"icon":"👹","effect":"Prisa: puede atacar el mismo turno en que entra."},
-{"number":"005","key":"overtkill","name":"Overtkill","type":"personaje","faction":"Hellspawn","cost":6,"atk":8,"hp":9,"demon":true,"icon":"🦾","effect":"Al entrar, hace 2 de daño a cada personaje enemigo."},
-{"number":"015","key":"alsimmons","name":"Al Simmons","type":"personaje","faction":"Earthly Forces","cost":2,"atk":3,"hp":3,"icon":"🕴️","effect":"Evolución: juega Spawn (001) sobre él pagando 2 menos; Spawn conserva su estado de ataque."},
-{"number":"041","key":"billy","name":"Billy Kincaid","type":"personaje","faction":"Earthly Forces","cost":2,"atk":4,"hp":2,"haste":true,"icon":"🔪","effect":"Prisa: puede atacar el mismo turno en que entra."},
-{"number":"051","key":"fire","name":"Elemental Fire","type":"evento","faction":"Event","cost":3,"icon":"🔥","effect":"5 de daño a un personaje enemigo (no afecta a Angela)."},
-{"number":"052","key":"bums","name":"Bums","type":"evento","faction":"Event","cost":1,"icon":"🥫","effect":"Recupera la última carta de tu Pila de KO y ponla en tu mano."},
-{"number":"053","key":"cia","name":"C.I.A. Contact","type":"mejora","faction":"Enhancement","cost":2,"icon":"📡","effect":"Equipa a un personaje propio: elige +3 ATK o +4 HP."},
-{"number":"054","key":"stasis","name":"Stasis Field","type":"evento","faction":"Event","cost":2,"icon":"❄️","effect":"Congela a un personaje enemigo: no puede atacar en su próximo turno."},
-{"number":"070","key":"medieval","name":"Medieval Spawn","type":"personaje","faction":"Hellspawn","cost":5,"atk":7,"hp":8,"demon":true,"shield":true,"icon":"🛡️","effect":"Escudo: reduce en 2 el primer daño que recibe cada turno."},
-{"number":"117","key":"cogliostro","name":"Count Cogliostro","type":"personaje","faction":"Earthly Forces","cost":2,"atk":2,"hp":4,"icon":"🧙","effect":"Al entrar: +1 Necroplasma y robas 1 carta."},
-{"number":"119","key":"hand","name":"Hand of Malebolgia","type":"personaje","faction":"Hellspawn","cost":7,"atk":9,"hp":10,"demon":true,"haste":true,"icon":"✋","effect":"Prisa: puede atacar el mismo turno en que entra."}
-];
-const TY={personaje:'c',mejora:'m',evento:'e'},D={},BYNUM={};
-CARDS_DATABASE.forEach(k=>{BYNUM[k.number]=k.key;D[k.key]={number:k.number,n:k.name,t:TY[k.type],c:k.cost,a:k.atk,h:k.hp,f:k.faction,x:k.effect,d:k.demon,hs:k.haste,sd:k.shield,i:k.icon}});
-const DEF_DECK=["001","001","002","002","003","003","070","070","117","117","015","041","005","051","051","052","053","053","054","054"];
-let DECK=null;try{const x=JSON.parse(localStorage.getItem('spawnTcgDeck')||'null');if(Array.isArray(x)&&x.length===20&&x.every(n=>BYNUM[n]))DECK=x}catch(e){}
-let IM={};try{IM=JSON.parse(localStorage.getItem('spawnTcgImgs')||'{}')}catch(e){}
-const BAD=new Set();
+const D={
+spawn:{n:'Spawn (Al Simmons)',t:'c',c:4,a:6,h:7,i:'💀',f:'Hellspawn',d:1,x:'Al entrar, si tu Pila de KO tiene cartas, gana +2 ATK.'},
+medieval:{n:'Medieval Spawn',t:'c',c:5,a:7,h:8,i:'🛡️',f:'Infierno',d:1,x:'Escudo: reduce en 2 el primer daño que recibe cada turno.'},
+violator:{n:'Violator',t:'c',c:4,a:7,h:5,i:'👹',f:'Infierno',d:1,x:'Prisa: puede atacar el mismo turno en que entra.'},
+angela:{n:'Angela',t:'c',c:3,a:5,h:5,i:'🪽',f:'Cielo',x:'Al atacar a un demonio o personaje de coste 4+, gana +2 ATK en ese combate.'},
+cogliostro:{n:'Cogliostro',t:'c',c:2,a:2,h:4,i:'🧙',f:'Inmortal',x:'Al entrar: +1 Necroplasma y robas 1 carta.'},
+cia:{n:'C.I.A. Contact',t:'m',c:2,i:'🕶️',f:'C.I.A.',x:'Equipa a un personaje propio: elige +3 ATK o +4 HP.'},
+fire:{n:'Elemental Fire',t:'e',c:3,i:'🔥',f:'Evento',x:'5 de daño a un personaje enemigo (no afecta a Angela).'},
+bums:{n:'Bums (Los Vagabundos)',t:'e',c:1,i:'🥫',f:'Evento',x:'Recupera la última carta de tu Pila de KO y ponla en tu mano.'},
+blast:{n:'Necro-Blast',t:'e',c:2,i:'☢️',f:'Evento',x:'3 de daño directo al HP rival; pierdes 1 HP.'},
+stasis:{n:'Stasis Field',t:'e',c:2,i:'❄️',f:'Evento',x:'Congela a un personaje enemigo: no puede atacar en su próximo turno.'}};
 let UID=0;
 const mk=id=>({u:++UID,id,atk:D[id].a,hp:D[id].h,mx:D[id].h,rdy:false,fz:false,sh:false});
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
-const mkSide=s=>({hp:20,deck:shuffle(((s==='p'&&DECK)||DEF_DECK).map(n=>BYNUM[n])),hand:[],f:[null,null,null],ko:[]});
+const mkSide=()=>({hp:20,deck:shuffle(Object.keys(D).flatMap(k=>[k,k])),hand:[],f:[null,null,null],ko:[]});
 const opp=s=>s==='p'?'e':'p';
 const nm=s=>s==='p'?'Tú':'Rival';
 const L=(g,t)=>{g.log.unshift(t);if(g.log.length>60)g.log.length=60};
@@ -105,24 +86,22 @@ function startTurn(g,s){g.turn=s;g.ph='main';g.ai='main';
  g[s].f.forEach(u=>{if(u)u.rdy=!u.fz});
  draw(g,s);L(g,`— Turno ${s==='p'?'tuyo':'del rival'} (Necroplasma: ${s==='p'?g.m:-g.m}) —`);win(g)}
 function endTurn(g,s,en){g[s].f.forEach(u=>{if(u)u.fz=false});g.m=clamp(s==='p'?-en:en);startTurn(g,opp(s))}
-function newGame(){const g={p:mkSide('p'),e:mkSide('e'),m:3,turn:'p',ph:'main',ai:'main',log:[],over:null};
+function newGame(){const g={p:mkSide(),e:mkSide(),m:3,turn:'p',ph:'main',ai:'main',log:[],over:null};
  for(let i=0;i<4;i++){draw(g,'p');draw(g,'e')}L(g,'¡Empieza la partida! Tienes 3 de Necroplasma.');startTurn(g,'p');return g}
-function hit(g,s,i,n){const u=g[s].f[i];if(!u)return;if(D[u.id].sd&&!u.sh){u.sh=true;n=Math.max(0,n-2)}u.hp-=n}
+function hit(g,s,i,n){const u=g[s].f[i];if(!u)return;if(u.id==='medieval'&&!u.sh){u.sh=true;n=Math.max(0,n-2)}u.hp-=n}
 function sweep(g){for(const s of['p','e'])g[s].f.forEach((u,i)=>{if(u&&u.hp<=0){g[s].ko.push(u.id);g[s].f[i]=null;L(g,`${D[u.id].n} (${nm(s)}) cae a la Pila de KO.`)}})}
 function tg(g,s,id){const S=g[s],T=g[opp(s)],ix=(F,ok)=>F.map((u,i)=>u&&ok(u)?i:-1).filter(i=>i>=0);
  if(id==='cia')return ix(S.f,()=>1);
  if(id==='fire')return ix(T.f,u=>u.id!=='angela');
  if(id==='stasis')return ix(T.f,()=>1);
  return null}
-function can(g,s,id){const t=tg(g,s,id);if(t)return t.length>0;if(D[id].t==='c')return g[s].f.includes(null)||(id==='spawn'&&g[s].f.some(u=>u&&u.id==='alsimmons'));if(id==='bums')return g[s].ko.length>0;return true}
+function can(g,s,id){const t=tg(g,s,id);if(t)return t.length>0;if(D[id].t==='c')return g[s].f.includes(null);if(id==='bums')return g[s].ko.length>0;return true}
 function play(g,s,hi,o){const S=g[s],T=g[opp(s)],id=S.hand[hi],c=D[id];if(!id)return;
- const old=c.t==='c'?S.f[o.slot]:null,ev=id==='spawn'&&old&&old.id==='alsimmons',cost=ev?c.c-2:c.c;
- S.hand.splice(hi,1);g.m=clamp(g.m+(s==='p'?-cost:cost));
- L(g,`${nm(s)} juega ${c.n} (coste ${cost}${ev?', evoluciona a Al Simmons':''}).`);
- if(c.t==='c'){const u=mk(id);if(c.hs||(ev&&old.rdy))u.rdy=true;
+ S.hand.splice(hi,1);g.m=clamp(g.m+(s==='p'?-c.c:c.c));
+ L(g,`${nm(s)} juega ${c.n} (coste ${c.c}).`);
+ if(c.t==='c'){const u=mk(id);if(id==='violator')u.rdy=true;
   if(id==='spawn'&&S.ko.length){u.atk+=2;L(g,'Spawn gana +2 ATK por la Pila de KO.')}
   S.f[o.slot]=u;
-  if(id==='overtkill'){T.f.forEach((_,i)=>hit(g,opp(s),i,2));L(g,'Overtkill: 2 de daño a cada personaje enemigo.')}
   if(id==='cogliostro'){g.m=clamp(g.m+(s==='p'?1:-1));draw(g,s);L(g,'Cogliostro: +1 Necroplasma y roba 1 carta.')}}
  else{
   if(id==='cia'){const u=S.f[o.tg];if(o.md==='atk')u.atk+=3;else{u.hp+=4;u.mx+=4}L(g,`${D[u.id].n} recibe ${o.md==='atk'?'+3 ATK':'+4 HP'}.`)}
@@ -139,7 +118,7 @@ function attack(g,s,ai,ti){const S=g[s],o=opp(s),T=g[o],a=S.f[ai];if(!a||!a.rdy)
   hit(g,o,ti,av);hit(g,s,ai,t.atk);L(g,`${D[a.id].n} (${nm(s)}) ataca a ${d.n}: ${av} de daño, recibe ${t.atk}.`)}
  sweep(g);win(g)}
 function aiOpts(g,s,id){const S=g[s],T=g[opp(s)],t=tg(g,s,id);
- if(D[id].t==='c'){const e=S.f.indexOf(null);return{slot:e>=0?e:S.f.findIndex(u=>u&&u.id==='alsimmons')}}
+ if(D[id].t==='c')return{slot:S.f.indexOf(null)};
  if(id==='cia'){const i=t.sort((a,b)=>S.f[b].atk-S.f[a].atk)[0];return{tg:i,md:S.f[i].hp>=5?'atk':'hp'}}
  const sc=i=>(id==='fire'&&T.f[i].hp<=5?100:0)+T.f[i].atk;
  if(t)return{tg:t.sort((a,b)=>sc(b)-sc(a))[0]};
@@ -161,7 +140,7 @@ function aiStep(g){const s='e',S=g.e,P=g.p,en=-g.m;
   if(!P.f.some(Boolean)){attack(g,s,ai,-1);return}
   let bi=-1,bsc=0;
   P.f.forEach((t,i)=>{if(!t)return;const d=D[t.id],av=a.atk+(a.id==='angela'&&(d.d||d.c>=4)?2:0);
-   const k=av>=t.hp+(D[t.id].sd&&!t.sh?2:0),sv=t.atk<a.hp;if(!k&&!sv)return;
+   const k=av>=t.hp+(t.id==='medieval'&&!t.sh?2:0),sv=t.atk<a.hp;if(!k&&!sv)return;
    const sc=(k?3:0)+(sv?2:0)+d.c/10;if(sc>bsc){bsc=sc;bi=i}});
   if(bi<0){a.rdy=false;return}
   attack(g,s,ai,bi);return}
@@ -169,39 +148,15 @@ function aiStep(g){const s='e',S=g.e,P=g.p,en=-g.m;
  if(i>=0&&Math.random()<.5){play(g,s,i,aiOpts(g,s,S.hand[i]));return}
  L(g,'El rival pasa su turno.');endTurn(g,s,3)}
 
-const Art=({num,icon})=>{const [,f]=useState(0);
- const src=[IM[num],`./cartas/${num}.jpg`,`./cartas/${num}.png`].find(s=>s&&!BAD.has(s));
- return src?html`<img src=${src} alt="" draggable="false" onError=${()=>{BAD.add(src);f(x=>x+1)}}/>`:html`<svg viewBox="0 0 60 80"><rect width="60" height="80" fill="#12090a"/><circle cx="30" cy="36" r="20" fill="none" stroke="#39ff14" stroke-width="2"/><circle cx="30" cy="36" r="15" fill="none" stroke="#c1121f" stroke-width="1"/><text x="30" y="44" text-anchor="middle" font-size="22">${icon}</text><text x="30" y="72" text-anchor="middle" fill="#8a9a9e" font-size="9" font-family="system-ui">${num}</text></svg>`};
-const Card=({id,u,cls='',...p})=>{const c=D[id],a=u?u.atk:c.a,h=u?u.hp:c.h,ch=c.t==='c';
- return html`<div className=${'card '+c.t+' '+cls} title=${c.n+': '+c.x} ...${p}>
- <div className="lc"><div className="sk">💀</div><div className="sv g"><small>COSTE</small>${c.c}</div><div className="sv r"><small>ATK</small>${ch?a:'–'}</div><div className="sv y"><small>HP</small>${ch?h:'–'}</div><div className="no">${c.number}</div></div>
- <div className="rc"><div className="fc">${c.f}</div><div className="fr"><${Art} num=${c.number} icon=${c.i}/></div><div className="nm">${c.n}</div></div>
+const Card=({id,u,cls='',...p})=>{const c=D[id],a=u?u.atk:c.a,h=u?u.hp:c.h;
+ return html`<div className=${'card '+c.t+' '+cls} ...${p}>
+ <div className="cost">${c.c}</div><div className="nm">${c.n}</div><div className="art">${c.i}</div><div className="fc">${c.f}</div><div className="tx">${c.x}</div>
+ ${c.t==='c'?html`<div className="st"><b className="a">⚔ ${a}</b><b className="h">♥ ${h}</b></div>`:html`<div className="st"><i>${c.t==='m'?'MEJORA':'EVENTO'}</i></div>`}
  ${u?html`<div className="bd">${u.fz?'❄️':u.rdy?'⚔️':'💤'}</div>`:null}</div>`};
-const Manager=({onClose,onSave,onStart})=>{
- const [num,setNum]=useState(CARDS_DATABASE[0].number),[tx,setTx]=useState((DECK||DEF_DECK).join(', ')),[msg,setMsg]=useState('');
- const arr=tx.split(/[\s,;]+/).filter(Boolean).map(x=>x.padStart(3,'0')),bad=arr.filter(n=>!BYNUM[n]);
- const persist=()=>{try{localStorage.setItem('spawnTcgImgs',JSON.stringify(IM));return true}catch(e){setMsg('No hay espacio en localStorage: usa imágenes más pequeñas o quita otras.');return false}};
- const onFiles=e=>{const fs=[...e.target.files];fs.forEach(f=>{const m=f.name.match(/(\d{3})/),n=fs.length===1?num:(m&&BYNUM[m[1]]?m[1]:null);
-  if(!n){setMsg(`"${f.name}": el nombre no tiene un número de carta válido (ej. 001.jpg).`);return}
-  const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,360/im.width),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);IM[n]=c.toDataURL('image/jpeg',.82);if(persist())setMsg('Imagen asignada a la carta '+n+'.');onSave()};im.src=r.result};r.readAsDataURL(f)});e.target.value=''};
- const save=go=>{if(arr.length!==20||bad.length){setMsg(bad.length?'Números inválidos: '+bad.join(', '):`El mazo debe tener 20 cartas (tienes ${arr.length}).`);return}
-  DECK=arr;try{localStorage.setItem('spawnTcgDeck',JSON.stringify(arr))}catch(e){}setMsg('Mazo guardado: se usa desde la próxima partida.');onSave();if(go)onStart()};
- return html`<div className="ov"><div className="mgr">
- <h2>IMÁGENES POR NÚMERO DE CARTA</h2>
- <p className="hint">Elige una carta y su imagen, o selecciona varios archivos llamados 001.jpg, 002.png… Se guardan en este navegador. En tu HTML exportado también se cargan solas desde ./cartas/NNN.jpg.</p>
- <select value=${num} onChange=${e=>setNum(e.target.value)}>${CARDS_DATABASE.map(k=>html`<option key=${k.number} value=${k.number}>${k.number} · ${k.name}</option>`)}</select>
- <div className="ctl"><input type="file" accept="image/*" multiple onChange=${onFiles}/><button onClick=${()=>{delete IM[num];persist();onSave();setMsg('Imagen quitada de '+num)}}>Quitar imagen ${num}</button></div>
- <h2>TU MAZO (20 CARTAS)</h2>
- <textarea rows="3" value=${tx} onChange=${e=>setTx(e.target.value)}></textarea>
- <div className="hint">${arr.length}/20 cartas${bad.length?' · inválidos: '+bad.join(', '):''}</div>
- <div className="ctl">${CARDS_DATABASE.map(k=>html`<button key=${k.number} title=${k.name} onClick=${()=>setTx(tx.trim().replace(/[,;]$/,'')+(tx.trim()?', ':'')+k.number)}>${k.number}</button>`)}</div>
- <div className="ctl"><button onClick=${()=>setTx(arr.slice(0,-1).join(', '))}>Quitar última</button><button onClick=${()=>setTx(DEF_DECK.join(', '))}>Mazo por defecto</button></div>
- <p className="hint">${msg}</p>
- <div className="ctl"><button onClick=${()=>save(false)}>GUARDAR MAZO</button><button onClick=${()=>save(true)}>GUARDAR Y NUEVA PARTIDA</button><button className="red" onClick=${onClose}>CERRAR</button></div></div></div>`};
 
 function App(){
  const [g,setG]=useState(()=>newGame());
- const [sh,setSh]=useState(null),[su,setSu]=useState(null),[ch,setCh]=useState(null),[zm,setZm]=useState(null),[mg,setMg]=useState(false),[,setVer]=useState(0);
+ const [sh,setSh]=useState(null),[su,setSu]=useState(null),[ch,setCh]=useState(null),[zm,setZm]=useState(null);
  const upd=f=>setG(o=>{const n=structuredClone(o);f(n);return n});
  const mine=g.turn==='p'&&!g.over;
  useEffect(()=>{if(g.turn!=='e'||g.over)return;const t=setTimeout(()=>upd(aiStep),g.ai==='main'?900:700);return()=>clearTimeout(t)},[g]);
@@ -212,7 +167,7 @@ function App(){
  const doPlay=(hi,o)=>{upd(n=>play(n,'p',hi,o));setSh(null);setCh(null)};
  const clickSlot=(s,i)=>{if(!mine)return;
   if(g.ph==='main'){if(!hid)return;const c=D[hid];
-   if(c.t==='c'&&s==='p'&&(!g.p.f[i]||(hid==='spawn'&&g.p.f[i].id==='alsimmons')))return doPlay(sh,{slot:i});
+   if(c.t==='c'&&s==='p'&&!g.p.f[i])return doPlay(sh,{slot:i});
    if(hid==='cia'&&s==='p'&&tl.includes(i))return setCh({tg:i});
    if((hid==='fire'||hid==='stasis')&&s==='e'&&tl.includes(i))return doPlay(sh,{tg:i});return}
   const u=g[s].f[i];if(!u)return;
@@ -223,7 +178,7 @@ function App(){
   <div className="pile"><span>MAZO</span><b>${S.deck.length}</b></div>
   <div className="pile"><span>PILA KO</span><b>${S.ko.length}</b><span>${S.ko.length?D[S.ko[S.ko.length-1]].n:'vacía'}</span></div>
   ${S.f.map((u,i)=>{let gl='';
-   if(hid){const c=D[hid];if(c.t==='c'&&s==='p'&&(!u||(hid==='spawn'&&u.id==='alsimmons')))gl='glow';else if(hid==='cia'&&s==='p'&&tl.includes(i))gl='glow';else if((hid==='fire'||hid==='stasis')&&s==='e'&&tl.includes(i))gl='glow'}
+   if(hid){const c=D[hid];if(c.t==='c'&&s==='p'&&!u)gl='glow';else if(hid==='cia'&&s==='p'&&tl.includes(i))gl='glow';else if((hid==='fire'||hid==='stasis')&&s==='e'&&tl.includes(i))gl='glow'}
    if(mine&&g.ph==='combat'){if(s==='p'&&u&&u.rdy)gl='rdyc';if(s==='e'&&u&&su!=null)gl='glow';if(s==='p'&&su===i)gl='sel'}
    return html`<div key=${i} className=${'slot '+gl} onClick=${()=>clickSlot(s,i)}>${u?html`<${Card} id=${u.id} u=${u} onPointerEnter=${()=>setZm({id:u.id,u})}/>`:null}</div>`})}</div>`};
  const Hp=s=>{const hp=Math.max(0,g[s].hp),can=s==='e'&&mine&&g.ph==='combat'&&su!=null&&!g.e.f.some(Boolean);
@@ -233,8 +188,7 @@ function App(){
  const hint=g.over?'Partida terminada.':g.turn==='e'?'Turno del rival…':g.ph==='main'?(hid?(needsT?'Elige un objetivo resaltado.':'Pulsa JUGAR o elige una zona vacía.'):'Elige una carta de tu mano.'):(su==null?'Elige un personaje con ⚔ y luego su objetivo. Con el campo rival vacío, ataca su HP.':'Elige el objetivo enemigo.');
  return html`<div className="app">
  <div className="side"><div className="pan"><h1>SPAWN TCG</h1>
-  <div className="zoom">${zm?html`<${Card} id=${zm.id} u=${zm.u}/>`:null}</div>
-  ${zm?html`<div className="fx"><b>${D[zm.id].n}</b> <small>#${D[zm.id].number} · ${D[zm.id].f}</small><p>${D[zm.id].x}</p></div>`:html`<p style=${{color:'#8a9a9e'}}>Pasa el ratón (o toca) una carta para verla en grande.</p>`}
+  <div className="zoom">${zm?html`<${Card} id=${zm.id} u=${zm.u}/>`:html`<p style=${{color:'#8a9a9e'}}>Pasa el ratón (o toca) una carta para verla en grande.</p>`}</div>
   <h2>HISTORIAL</h2><div className="log">${g.log.map((t,i)=>html`<div key=${i}>${t}</div>`)}</div></div></div>
  <div className="main">
   ${Hp('e')}
@@ -245,16 +199,15 @@ function App(){
   ${Row('p')}
   <div className="ctl">
    <div className="hint">${hint}</div>
-   ${hid&&!needsT&&can(g,'p',hid)?html`<button onClick=${()=>doPlay(sh,D[hid].t==='c'?{slot:g.p.f.indexOf(null)>=0?g.p.f.indexOf(null):g.p.f.findIndex(u=>u&&u.id==='alsimmons')}:{})}>JUGAR</button>`:null}
+   ${hid&&!needsT&&can(g,'p',hid)?html`<button onClick=${()=>doPlay(sh,D[hid].t==='c'?{slot:g.p.f.indexOf(null)}:{})}>JUGAR</button>`:null}
    <button disabled=${!mine||g.ph!=='main'} onClick=${()=>{upd(n=>{n.ph='combat';L(n,'Fase de combate.')});setSh(null)}}>IR A COMBATE</button>
    <button disabled=${!mine} onClick=${()=>upd(n=>{L(n,'Terminas tu turno.');endTurn(n,'p',3)})}>TERMINAR TURNO</button>
-   <button onClick=${()=>setMg(true)}>CARGAR IMÁGENES / MAZOS</button><button className="red" onClick=${reset}>NUEVA PARTIDA</button></div>
+   <button className="red" onClick=${reset}>NUEVA PARTIDA</button></div>
   <div className="row hand">${g.p.hand.map((id,i)=>html`<${Card} key=${i} id=${id} cls=${(sh===i?'sel ':'')+(can(g,'p',id)?'':'dim')} onClick=${()=>{setZm({id});if(mine&&g.ph==='main')setSh(sh===i?null:i)}} onPointerEnter=${()=>setZm({id})}/>`)}</div>
   ${Hp('p')}
  </div>
  ${ch?html`<div className="ov"><div><h2>C.I.A. Contact</h2><p>Elige la mejora:</p><div className="ctl" style=${{justifyContent:'center'}}>
   <button onClick=${()=>doPlay(sh,{tg:ch.tg,md:'atk'})}>+3 ATK</button><button onClick=${()=>doPlay(sh,{tg:ch.tg,md:'hp'})}>+4 HP</button><button className="red" onClick=${()=>setCh(null)}>Cancelar</button></div></div></div>`:null}
- ${mg?html`<${Manager} onClose=${()=>setMg(false)} onSave=${()=>setVer(v=>v+1)} onStart=${()=>{setMg(false);reset()}}/>`:null}
  ${g.over?html`<div className="ov"><div><h1>${g.over==='p'?'VICTORIA':'DERROTA'}</h1><p>${g.over==='p'?'El Infierno se queda sin campeón.':'El rival te deja sin HP.'}</p><button onClick=${reset}>NUEVA PARTIDA</button></div></div>`:null}
  </div>`}
 ReactDOM.createRoot(document.getElementById('r')).render(html`<${App}/>`);
