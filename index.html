@@ -28,12 +28,14 @@
   <main class="main" id="board">
     <div class="hp" id="e-hp" data-s="e" data-i="hp"></div>
     <div class="row" id="e-hand"></div>
+    <div class="row fld" id="e-support"></div>
     <div class="row fld" id="e-field"></div>
 
     <div class="ml"><span>◀ RIVAL (-10)</span><b id="meter-label" style="color:#39ff14"></b><span>TÚ (+10) ▶</span></div>
     <div class="meter" id="meter"></div>
 
     <div class="row fld" id="p-field"></div>
+    <div class="row fld" id="p-support"></div>
     <div class="ctl">
       <div class="hint" id="hint"></div>
       <button id="btn-play" type="button" hidden>JUGAR</button>
@@ -108,6 +110,9 @@
     <button id="end-new" type="button">NUEVA PARTIDA</button>
   </div>
 </div>
+
+<!-- Activación de Eventos/Trampas (estilo Yu-Gi-Oh!) -->
+<div class="reveal" id="reveal" hidden><div class="rv"><div id="reveal-card"></div><b id="reveal-who"></b></div></div>
 
 <script src="cards.js"></script>
 <script src="game.js"></script>

@@ -74,4 +74,12 @@ button:focus-visible{outline:2px solid #fff}button:disabled{opacity:.4;cursor:de
 .slot.buff .card{animation:bf .5s ease}@keyframes bf{20%,60%{filter:brightness(1.4) saturate(1.6);box-shadow:0 0 16px 5px var(--g)}}
 .hp.buff{animation:hb .5s}@keyframes hb{20%,60%{background:#0f4a1a}}
 @media(prefers-reduced-motion:reduce){.fl,.slot .card{animation-duration:.01s!important}}
+.ep{position:absolute;right:3px;bottom:3px;z-index:3;font-size:1.2em}.eq{position:absolute;left:2px;top:2px;z-index:4;font-size:12px}
+.reveal{position:fixed;inset:0;display:grid;place-items:center;z-index:20;pointer-events:none;background:radial-gradient(circle,#0006,#000b)}
+.reveal .rv{--cw:min(46vw,220px);text-align:center;animation:rv 1.2s ease both}
+.reveal .card{cursor:default;box-shadow:0 0 30px 10px var(--g),0 0 80px 24px #39ff1466;animation:rg .5s ease-in-out infinite alternate}
+.reveal b{display:block;margin-top:10px;font:400 24px Bangers,Impact,sans-serif;letter-spacing:1px;color:#fff;text-shadow:2px 2px 0 var(--r)}
+@keyframes rv{0%{opacity:0;transform:scale(.4) rotate(-6deg)}15%{opacity:1;transform:scale(1.08)}25%,85%{transform:scale(1)}100%{opacity:0;transform:scale(1.05)}}
+@keyframes rg{to{box-shadow:0 0 44px 16px #fff,0 0 100px 30px var(--g)}}
+@media(prefers-reduced-motion:reduce){.reveal .rv,.reveal .card{animation-duration:.01s!important}}
 [hidden]{display:none!important}
