@@ -12,11 +12,13 @@
 <!-- Barra superior -->
 <header class="top">
   <h1>SPAWN TCG</h1>
-  <button id="btn-sound" type="button">🔊 SONIDO ON</button>
+  <button id="btn-rules" type="button">📖 REGLAS</button>
+  <button id="btn-bag" type="button">🃏 MAZOS / CARTAS</button>
+  <button id="btn-new" type="button" class="red">NUEVA PARTIDA</button>
 </header>
 
 <div class="app">
-  <!-- Panel lateral: carta ampliada e historial -->
+  <!-- Panel lateral: carta ampliada, texto de efecto e historial -->
   <aside class="side"><div class="pan">
     <div class="zoom" id="zoom"></div>
     <div class="fx" id="zoom-fx" hidden></div>
@@ -43,8 +45,6 @@
       <button id="btn-mull" type="button" class="red" hidden>Cambiar Mano (Mulligan)</button>
       <button id="btn-combat" type="button">IR A COMBATE</button>
       <button id="btn-end" type="button">TERMINAR TURNO</button>
-      <button id="btn-bag" type="button">CARGAR IMÁGENES / MAZOS</button>
-      <button id="btn-new" type="button" class="red">NUEVA PARTIDA</button>
     </div>
     <div class="row hand" id="p-hand"></div>
     <div class="hp" id="p-hp" data-s="p" data-i="hp"></div>
@@ -56,27 +56,39 @@
   <div class="mgr">
     <h1>ELIGE RIVAL</h1>
     <div class="bosses" id="boss-list"></div>
-    <div class="ctl"><button id="btn-menu-bag" type="button">CARGAR IMÁGENES / MAZOS</button></div>
+    <div class="ctl"><button id="btn-menu-rules" type="button">📖 REGLAS</button><button id="btn-menu-bag" type="button">🃏 MAZOS / CARTAS</button></div>
   </div>
 </div>
 
-<!-- Constructor de mazos e imágenes -->
+<!-- Constructor de mazos e imágenes (vista Galería / vista Lista) -->
 <div class="ov" id="ov-mgr" hidden>
-  <div class="mgr">
-    <h2>IMÁGENES POR NÚMERO DE CARTA</h2>
-    <p class="hint">Elige una carta y su imagen, o selecciona varios archivos llamados 001.jpg, 002.png… Se guardan en este navegador. En GitHub Pages también se cargan solas desde ./cartas/NNN.jpg (o .png).</p>
-    <select id="mgr-card"></select>
-    <div class="ctl"><input type="file" id="mgr-file" accept="image/*" multiple><button id="mgr-del" type="button">Quitar imagen de la carta elegida</button></div>
-    <h2>TU MAZO (20 CARTAS)</h2>
-    <textarea id="mgr-deck" rows="3"></textarea>
-    <div class="hint" id="mgr-count"></div>
-    <div class="ctl" id="mgr-chips"></div>
-    <div class="ctl"><button id="mgr-last" type="button">Quitar última</button><button id="mgr-def" type="button">Mazo por defecto</button></div>
-    <p class="hint" id="mgr-msg"></p>
-    <div class="ctl">
-      <button id="mgr-save" type="button">GUARDAR MAZO</button>
-      <button id="mgr-save-new" type="button">GUARDAR Y NUEVA PARTIDA</button>
-      <button id="mgr-close" type="button" class="red">CERRAR</button>
+  <div class="mgr mgrbox">
+    <div class="mgh">
+      <h2>TU MAZO · <span id="mgr-count">0/20</span> cartas · máx. 2 copias de cada una</h2>
+      <div class="ctl">
+        <button id="mgr-v-gal" type="button" class="vt on">🖼️ Vista Galería</button>
+        <button id="mgr-v-list" type="button" class="vt">📋 Vista Lista</button>
+        <button id="mgr-clear" type="button">Vaciar</button>
+        <button id="mgr-def" type="button">Mazo por defecto</button>
+      </div>
+      <details class="imgs">
+        <summary>🖼️ Imágenes por número de carta</summary>
+        <p class="hint">Elige una carta y su imagen, o selecciona varios archivos llamados 001.jpg, 002.png… Se guardan en este navegador. En GitHub Pages también se cargan solas desde ./cartas/NNN.jpg (o .png).</p>
+        <select id="mgr-card"></select>
+        <div class="ctl"><input type="file" id="mgr-file" accept="image/*" multiple><button id="mgr-del" type="button">Quitar imagen de la carta elegida</button></div>
+      </details>
+    </div>
+    <div class="mgbody" id="mgr-body">
+      <div class="gal" id="mgr-gal"></div>
+      <div class="lst" id="mgr-list" hidden></div>
+    </div>
+    <div class="mgf">
+      <p class="hint" id="mgr-msg"></p>
+      <div class="ctl">
+        <button id="mgr-save" type="button">GUARDAR MAZO</button>
+        <button id="mgr-save-new" type="button">GUARDAR Y NUEVA PARTIDA</button>
+        <button id="mgr-close" type="button" class="red">CERRAR</button>
+      </div>
     </div>
   </div>
 </div>
@@ -108,6 +120,47 @@
   <div>
     <h1 id="end-title"></h1><p id="end-msg"></p>
     <button id="end-new" type="button">NUEVA PARTIDA</button>
+  </div>
+</div>
+
+<!-- Reglas del juego (se cierra con CERRAR, Escape o clic fuera) -->
+<div class="ov" id="ov-rules" hidden>
+  <div class="mgr rules" role="dialog" aria-modal="true" aria-labelledby="rules-title">
+    <h1 id="rules-title">📖 REGLAS</h1>
+
+    <h3>1 · Objetivo y Medidor de Necroplasma</h3>
+    <p>Reduce el HP del rival a 0 antes de que él lo haga contigo. Tú empiezas con 20 HP; los jefes tienen entre 20 y 25.</p>
+    <p>El <b>Medidor de Necroplasma</b> es compartido y va de <b>-10 a +10</b>. En tu turno, el número del medidor (lado "TÚ") es el Necroplasma que tienes para gastar; en el turno del rival cuenta el lado "RIVAL".</p>
+    <ul>
+      <li>Cada carta que juegas cuesta su coste: el marcador se desplaza hacia el lado del rival.</li>
+      <li>Si gastas más de lo que tienes y el marcador cruza al lado rival, <b>tu turno termina</b> y el rival empieza con el Necroplasma que quedó marcado.</li>
+      <li>Si terminas tu turno por voluntad propia, el rival empieza con 3 de Necroplasma.</li>
+    </ul>
+
+    <h3>2 · Zonas del tablero</h3>
+    <ul>
+      <li><b>Frente (3 casillas):</b> solo para <b>Personajes</b>. Aquí atacan y se defienden.</li>
+      <li><b>Fila trasera (2 ranuras):</b> una de <b>Apoyo</b> para tu Mejora Continua activa (su efecto dura mientras siga ahí; si juegas otra, reemplaza a la anterior) y una de <b>Trampa oculta</b>, boca abajo.</li>
+      <li><b>Zona Central:</b> los <b>Eventos</b> son instantáneos: se muestran en el centro de la pantalla, hacen su efecto y van a la Pila de KO.</li>
+      <li><b>Trampa oculta (coste 1):</b> puedes colocar un Evento boca abajo. Se activa cuando recibes un ataque directo o cuando el rival invoca un personaje de coste 5 o más.</li>
+    </ul>
+
+    <h3>3 · Turno, Mulligan y combate</h3>
+    <ul>
+      <li><b>Turno:</b> robas 1 carta → Fase Principal (juegas cartas, cambias de modo, colocas la oculta) → <b>IR A COMBATE</b> → <b>TERMINAR TURNO</b>. En combate ya no puedes jugar cartas.</li>
+      <li><b>Mulligan:</b> al inicio de la partida, antes de jugar nada, puedes cambiar tu mano por 4 cartas nuevas.</li>
+      <li><b>Mareo de Invocación:</b> un personaje que entra no puede atacar ese turno, salvo que tenga <b>Prisa</b>.</li>
+      <li><b>Modo Ataque / Guardia:</b> cada personaje puede cambiar de modo una vez por turno. En Guardia no ataca, pero protege: mientras el rival tenga algún personaje en Guardia, no puedes atacar directamente a su HP.</li>
+      <li><b>Combate:</b> atacante y defensor se hacen daño a la vez. Un ataque directo quita al rival HP igual al ATK del atacante.</li>
+    </ul>
+
+    <h3>4 · Límite de mano y mazo vacío</h3>
+    <ul>
+      <li><b>Límite de 7 cartas:</b> al terminar tu turno, si tienes más de 7, descartas hasta quedarte con 7 (van a la Pila de KO).</li>
+      <li><b>Mazo vacío:</b> si debes robar y no quedan cartas, recibes <b>5 de daño</b> y tu Pila de KO se baraja para formar un mazo nuevo.</li>
+    </ul>
+
+    <div class="ctl"><button id="rules-close" type="button" class="red">CERRAR</button></div>
   </div>
 </div>
 
