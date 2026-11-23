@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SPAWN TCG: Necroplasma</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--g:#39ff14;--r:#c1121f;--m:#8a9a9e;--tx:#e8efe9;--cw:clamp(66px,9vw,100px);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#10230f,#06080a 62%);color:var(--tx);font:13px/1.35 system-ui,sans-serif;min-height:100vh}
+.app{max-width:1180px;margin:0 auto;padding:8px;display:grid;grid-template-columns:236px 1fr;gap:10px}
+@media(max-width:820px){.app{grid-template-columns:1fr}.side{order:2}}
+.pan{background:#0f1512;border:1px solid #2a3a30;border-radius:8px;padding:8px}
+h1{font:400 32px Bangers,Impact,sans-serif;letter-spacing:2px;margin:0 0 6px;color:var(--g);text-shadow:2px 2px 0 var(--r)}
+h2{font:400 16px Bangers,Impact,sans-serif;letter-spacing:1px;margin:8px 0 4px;color:#b8c2c6}
+.row{display:flex;gap:6px;align-items:center;justify-content:center;overflow-x:auto;padding:5px 3px}
+.slot{width:calc(var(--cw) + 4px);height:calc(var(--cw)*1.42 + 4px);border:2px dashed #34423a;border-radius:7px;flex:none}
+.slot.glow{border-color:var(--g);box-shadow:0 0 12px 2px var(--g)}
+.slot.rdyc{border:2px solid var(--r);box-shadow:0 0 12px 2px var(--r)}
+.slot.sel{border:2px solid #fff;box-shadow:0 0 12px 2px #fff}
+.pile{width:calc(var(--cw)*.8);height:calc(var(--cw)*1.42);flex:none;border:2px solid #5b676b;border-radius:6px;background:linear-gradient(#222b29,#0b0f0e);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:10px;color:var(--m);padding:2px}
+.pile b{font-size:20px;color:var(--tx)}
+.card{position:relative;width:var(--cw);height:calc(var(--cw)*1.42);border:2px solid #8d979a;border-radius:6px;background:linear-gradient(135deg,#b08a2a,#4a3a10 45%,#8a6a1e);display:flex;gap:2px;padding:2px;font-size:calc(var(--cw)*.1);line-height:1.1;flex:none;cursor:pointer;transition:transform .12s;overflow:hidden}
+.card.m{border-color:var(--g)}.card.e{border-color:#ff3b3b}
+.lc{width:28%;display:flex;flex-direction:column;align-items:center;gap:calc(var(--cw)*.03);padding:2px 1px;background:linear-gradient(#4b5558,#1c2224);border-radius:3px;min-width:0}
+.sk{font-size:calc(var(--cw)*.2);line-height:1}
+.sv{width:100%;text-align:center;font:700 calc(var(--cw)*.17)/1 system-ui;background:#0b0e0f;border-radius:2px;padding:1px 0}
+.sv small{display:block;font-size:.42em;color:#9aa5a8}
+.sv.g{color:var(--g);text-shadow:0 0 4px var(--g)}.sv.r{color:#ff3b3b}.sv.y{color:#ffd23f}
+.no{margin-top:auto;font:700 calc(var(--cw)*.1) system-ui;color:#d4af37}
+.rc{width:72%;display:flex;flex-direction:column;gap:2px;min-width:0}
+.fc{font:700 calc(var(--cw)*.07)/1.1 system-ui;text-align:right;color:#f1e9c9;text-transform:uppercase;background:#0b0e0f;padding:2px 3px;border-radius:2px;white-space:nowrap;overflow:hidden}
+.fr{flex:1;min-height:0;border:2px solid #c1121f;outline:1px solid #d4af37;border-radius:2px;overflow:hidden;background:#0a0d0b}
+.fr img,.fr svg{width:100%;height:100%;object-fit:cover;display:block}
+.nm{font:400 calc(var(--cw)*.115)/1 Bangers,Impact,sans-serif;text-transform:uppercase;text-align:center;color:#fff;-webkit-text-stroke:calc(var(--cw)*.012) #000;paint-order:stroke fill;text-shadow:1px 1px 0 #000;min-height:2em;display:grid;place-items:center;overflow:hidden}
+.zoom{--cw:190px;display:flex;justify-content:center}
+.fx{margin-top:8px;padding:8px;border:1px solid #5b676b;border-radius:6px;background:#0b100e}.fx p{margin:4px 0 0}
+.bd{position:absolute;right:3px;top:3px;font-size:1.3em;z-index:3}
+select,textarea{background:#0b100e;color:var(--tx);border:1px solid #2a3a30;border-radius:5px;padding:6px;font:inherit;width:100%}
+.ov>div.mgr{max-width:600px;width:calc(100% - 24px);max-height:90vh;overflow:auto;text-align:left}
+.back{background:url("cartas/back.jpg") center/cover no-repeat,linear-gradient(135deg,#2a1050,#0b0614);border-color:#7c3aed;cursor:default}
+.hand .card:hover{transform:translateY(-8px)}
+.card.sel{transform:translateY(-12px);box-shadow:0 0 14px 3px #fff}
+.card.dim{opacity:.55}
+.meter{display:flex;gap:2px;margin:4px 0}
+.meter i{flex:1;height:22px;border-radius:3px;background:#1a211e;font:10px/22px system-ui;text-align:center;color:#6a7a70;font-style:normal}
+.meter .n{background:#2a0b0e}.meter .p{background:#0f2a12}
+.meter .on{background:var(--g);color:#000;font-weight:700;box-shadow:0 0 10px var(--g)}
+.ml{display:flex;justify-content:space-between;font-size:11px;color:var(--m)}
+.hp{display:flex;align-items:center;gap:8px;padding:4px 8px;border:1px solid #2a3a30;border-radius:6px;background:#0b100e}
+.hp.glow{border-color:var(--g);box-shadow:0 0 10px var(--g);cursor:pointer}
+.bar{flex:1;height:10px;background:#2a0b0e;border-radius:5px;overflow:hidden}.bar div{height:100%;background:var(--r);transition:width .3s}
+.ctl{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}
+button{font:700 13px system-ui;background:#1d2723;color:var(--tx);border:1px solid var(--g);border-radius:5px;padding:7px 11px;cursor:pointer}
+button:focus-visible{outline:2px solid #fff}button:disabled{opacity:.4;cursor:default}button.red{border-color:var(--r)}
+.hint{color:#b8c2c6;font-size:12px;flex:1;min-width:150px}
+.log{max-height:210px;overflow:auto;font-size:12px}.log div{border-bottom:1px solid #1d2a22;padding:2px 0}
+.ov{position:fixed;inset:0;background:#000c;display:grid;place-items:center;z-index:9}
+.ov>div{background:#0f1512;border:2px solid var(--g);border-radius:10px;padding:20px;text-align:center;max-width:320px}
+.ov h1{font-size:42px}
+.top{max-width:1180px;margin:0 auto;padding:8px 8px 0;display:flex;gap:10px;align-items:center}.top h1{margin:0;flex:1}
+.slot{position:relative}.row.fld{overflow:visible}
+.slot.lungep .card{animation:lp .45s ease}.slot.lungee .card{animation:le .45s ease}
+@keyframes lp{40%{transform:translateY(-26px) scale(1.06)}100%{transform:none}}
+@keyframes le{40%{transform:translateY(26px) scale(1.06)}100%{transform:none}}
+.slot.hit .card{animation:hf .5s ease}
+@keyframes hf{20%,60%{filter:sepia(1) saturate(9) hue-rotate(-50deg) brightness(1.3);box-shadow:0 0 14px 4px #f00}}
+.hp{position:relative}.hp.hit{animation:hf2 .5s}@keyframes hf2{20%,60%{background:#6a0a12}}
+.fl{position:absolute;left:50%;top:25%;transform:translateX(-50%);font:400 26px Bangers,Impact,sans-serif;pointer-events:none;z-index:8;white-space:nowrap;text-shadow:2px 2px 0 #000;animation:fl 1s ease-out forwards}
+.fl.r{color:#ff3b3b}.fl.g{color:var(--g)}.fl.b{color:#6fd3ff}
+@keyframes fl{0%{opacity:0;transform:translate(-50%,10px) scale(.6)}15%{opacity:1;transform:translate(-50%,0) scale(1.3)}100%{opacity:0;transform:translate(-50%,-48px) scale(1)}}
+.bosses{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:8px 0}
+.boss{border:2px solid var(--r);padding:10px;text-align:center;background:#0b100e}.boss:hover{border-color:var(--g);box-shadow:0 0 12px var(--g)}
+.boss .bi{font-size:42px}.boss p{margin:4px 0 0;font:12px system-ui;color:#b8c2c6}
+.card.guard{border-color:#6fd3ff;box-shadow:0 0 8px #6fd3ff}.card.tired{filter:saturate(.45)}
+.md{position:absolute;left:3px;bottom:3px;font-size:1.3em;z-index:3}
+.mbtn{position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);z-index:5;font:700 10px system-ui;padding:3px 6px;white-space:nowrap;border-color:#6fd3ff}
+.trapslot{display:grid;place-items:center;border:2px solid #7c3aed}.trapslot .lbl{position:absolute;top:-1px;font:9px system-ui;color:#b9a3ff;z-index:2}
+.slot.buff .card{animation:bf .5s ease}@keyframes bf{20%,60%{filter:brightness(1.4) saturate(1.6);box-shadow:0 0 16px 5px var(--g)}}
+.hp.buff{animation:hb .5s}@keyframes hb{20%,60%{background:#0f4a1a}}
+@media(prefers-reduced-motion:reduce){.fl,.slot .card{animation-duration:.01s!important}}
+</style></head>
+<body><div id="r"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
+<script>
+const {useState,useEffect}=React;
+const html=htm.bind(React.createElement);
+/* BASE DE DATOS: para ampliarla pega más entradas con este mismo formato.
+   key = id interno (único) · number = número oficial (también nombra la imagen ./cartas/NNN.jpg)
+   type: personaje | evento | mejora · opcionales: haste (prisa), shield (escudo), demon */
+const CARDS_DATABASE=[
+{"number":"001","key":"spawn","name":"Spawn","type":"personaje","faction":"Earthly Forces","cost":4,"atk":6,"hp":7,"demon":true,"icon":"💀","effect":"Al entrar, si tu Pila de KO tiene cartas, gana +2 ATK."},
+{"number":"002","key":"angela","name":"Angela","type":"personaje","faction":"Heaven","cost":3,"atk":5,"hp":5,"icon":"🪽","effect":"Al atacar a un demonio o personaje de coste 4+, gana +2 ATK en ese combate."},
+{"number":"003","key":"violator","name":"Violator","type":"personaje","faction":"Hellspawn","cost":4,"atk":7,"hp":5,"demon":true,"haste":true,"icon":"😈","effect":"Prisa: puede atacar el mismo turno en que entra."},
+{"number":"004","key":"clown","name":"Clown","type":"personaje","faction":"Hellspawn","cost":3,"atk":4,"hp":6,"demon":true,"armor":1,"icon":"🤡","effect":"Piel Gruesa: Reduce en 1 el daño de combate que recibe."},
+{"number":"005","key":"overtkill","name":"Overtkill","type":"personaje","faction":"Hellspawn","cost":6,"atk":8,"hp":9,"demon":true,"icon":"🦾","effect":"Al entrar, hace 2 de daño a cada personaje enemigo."},
+{"number":"008","key":"sam","name":"Sam & Twitch","type":"personaje","faction":"Earthly Forces","cost":3,"atk":3,"hp":4,"icon":"🕵️","effect":"Refuerzos: al entrar, tus demás personajes ganan +1 ATK."},
+{"number":"011","key":"commando","name":"Commando Spawn","type":"personaje","faction":"Hellspawn","cost":5,"atk":6,"hp":6,"demon":true,"icon":"🪖","effect":"Al entrar, hace 3 de daño directo al HP rival."},
+{"number":"014","key":"redeemer","name":"Redeemer","type":"personaje","faction":"Heaven","cost":4,"atk":5,"hp":5,"icon":"🕊️","effect":"Redención: al entrar, recuperas 4 HP."},
+{"number":"015","key":"alsimmons","name":"Al Simmons","type":"personaje","faction":"Earthly Forces","cost":2,"atk":3,"hp":3,"icon":"🕴️","effect":"Evolución: juega Spawn (001) sobre él pagando 2 menos; Spawn conserva su estado de ataque."},
+{"number":"030","key":"cygor","name":"Cy-Gor","type":"personaje","faction":"Hellspawn","cost":5,"atk":7,"hp":6,"demon":true,"regen":2,"icon":"🦍","effect":"Regeneración: recupera 2 HP al inicio de tu turno."},
+{"number":"041","key":"billy","name":"Billy Kincaid","type":"personaje","faction":"Earthly Forces","cost":2,"atk":4,"hp":2,"haste":true,"icon":"🔪","effect":"Prisa: puede atacar el mismo turno en que entra."},
+{"number":"051","key":"fire","name":"Elemental Fire","type":"evento","faction":"Event","cost":3,"icon":"🔥","effect":"5 de daño a un personaje enemigo (no afecta a Angela)."},
+{"number":"052","key":"bums","name":"Bums","type":"evento","faction":"Event","cost":1,"icon":"🥫","effect":"Recupera la última carta de tu Pila de KO y ponla en tu mano."},
+{"number":"053","key":"cia","name":"C.I.A. Contact","type":"mejora","faction":"Enhancement","cost":2,"icon":"📡","effect":"Equipa a un personaje propio: elige +3 ATK o +4 HP."},
+{"number":"054","key":"stasis","name":"Stasis Field","type":"evento","faction":"Event","cost":2,"icon":"❄️","effect":"Congela a un personaje enemigo: no puede atacar en su próximo turno."},
+{"number":"063","key":"grandma","name":"Grandma Blake","type":"personaje","faction":"Earthly Forces","cost":2,"atk":1,"hp":5,"icon":"👵","effect":"Protectora: al entrar, todos tus personajes ganan +2 HP."},
+{"number":"064","key":"media","name":"Media Contact","type":"evento","faction":"Event","cost":1,"icon":"📺","effect":"Roba 2 cartas."},
+{"number":"070","key":"medieval","name":"Medieval Spawn","type":"personaje","faction":"Hellspawn","cost":5,"atk":7,"hp":8,"demon":true,"shield":true,"icon":"🛡️","effect":"Escudo: reduce en 2 el primer daño que recibe cada turno."},
+{"number":"094","key":"biggun","name":"Big Gun","type":"mejora","faction":"Enhancement","cost":3,"icon":"🔫","effect":"Equipa a un personaje propio: +4 ATK. Si entró este turno, puede atacar ya (Prisa)."},
+{"number":"117","key":"cogliostro","name":"Count Cogliostro","type":"personaje","faction":"Earthly Forces","cost":2,"atk":2,"hp":4,"icon":"🧙","effect":"Al entrar: +1 Necroplasma y robas 1 carta."},
+{"number":"119","key":"hand","name":"Hand of Malebolgia","type":"personaje","faction":"Hellspawn","cost":7,"atk":9,"hp":10,"demon":true,"haste":true,"icon":"✋","effect":"Prisa: puede atacar el mismo turno en que entra."},
+{"number":"120","key":"urizen","name":"Urizen","type":"personaje","faction":"Heaven","cost":6,"atk":7,"hp":7,"icon":"⚖️","effect":"Juicio: al entrar, destruye al personaje enemigo con más ATK."}
+];
+const TY={personaje:'c',mejora:'m',evento:'e'},D={},BYNUM={};
+CARDS_DATABASE.forEach(k=>{BYNUM[k.number]=k.key;D[k.key]={number:k.number,n:k.name,t:TY[k.type],c:k.cost,a:k.atk,h:k.hp,f:k.faction,x:k.effect,d:k.demon,hs:k.haste,sd:k.shield,ar:k.armor,rg:k.regen,i:k.icon}});
+const DEF_DECK=["001","001","002","002","003","003","004","004","005","015","041","051","052","053","054","070","070","117","117","119"];
+let DECK=null;try{const x=JSON.parse(localStorage.getItem('spawnTcgDeck')||'null');if(Array.isArray(x)&&x.length===20&&x.every(n=>BYNUM[n]))DECK=x}catch(e){}
+let IM={};try{IM=JSON.parse(localStorage.getItem('spawnTcgImgs')||'{}')}catch(e){}
+const BAD=new Set();
+const BOSSES={
+violator:{n:'Violator',hp:20,i:'😈',d:'Mazo agresivo: coste bajo, prisa y daño directo.',deck:["003","003","041","041","015","015","011","011","008","008","051","051","117","117","004","002","005","094","094","052"]},
+wynn:{n:'Jason Wynn / CIA',hp:22,i:'🕴️',d:'Táctico: mejoras, escudos y Stasis Field.',deck:["053","053","053","094","054","054","054","070","070","063","063","004","004","002","117","117","064","064","014","051"]},
+malebolgia:{n:'Malebolgia',hp:25,i:'👁️',d:'Jefe: 25 HP iniciales y cartas pesadas.',deck:["119","119","005","005","070","070","120","120","030","030","001","001","003","004","004","052","051","117","064","053"]}};
+/* AUDIO sintetizado (Web Audio API, sin archivos) */
+let AC=null,SND=(()=>{try{return localStorage.getItem('spawnTcgSnd')!=='0'}catch(e){return true}})(),FID=0;
+const au=()=>{try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}catch(e){}return AC};
+function tone(f,d,ty,v,t0,f2){const a=au();if(!a)return;const t=a.currentTime+(t0||0),o=a.createOscillator(),gn=a.createGain();o.type=ty||'sine';o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);gn.gain.setValueAtTime(v||.2,t);gn.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(gn);gn.connect(a.destination);o.start(t);o.stop(t+d+.02)}
+function noise(d,v,t0){const a=au();if(!a)return;const n=Math.floor(a.sampleRate*d),b=a.createBuffer(1,n,a.sampleRate),x=b.getChannelData(0);for(let i=0;i<n;i++)x[i]=(Math.random()*2-1)*(1-i/n);const r=a.createBufferSource(),gn=a.createGain();r.buffer=b;gn.gain.value=v;r.connect(gn);gn.connect(a.destination);r.start(a.currentTime+(t0||0))}
+const SFX={
+place:()=>{tone(880,.25,'square',.08);tone(1318,.2,'triangle',.07,.03);tone(1760,.12,'sine',.05,.05);noise(.06,.15)},
+hit:()=>{tone(140,.4,'sine',.6,0,38);tone(90,.25,'sawtooth',.2,0,40);noise(.2,.35)},
+energy:()=>{tone(70,.7,'sawtooth',.14,0,140);tone(73,.7,'square',.06,0,146);tone(420,.5,'sine',.05,.1,1200)},
+win:()=>{[[147,0],[175,.18],[220,.36],[294,.54]].forEach(([f,t])=>{tone(f,.5,'sawtooth',.14,t);tone(f/2,.5,'square',.1,t)});tone(294,1.4,'sawtooth',.16,.8);tone(147,1.4,'square',.1,.8);tone(349,1.4,'triangle',.08,.8)},
+lose:()=>{[[220,0],[196,.3],[175,.6],[110,.9]].forEach(([f,t])=>tone(f,.5,'sawtooth',.14,t,f*.96))},
+guard:()=>{tone(520,.08,'square',.09);tone(390,.14,'triangle',.08,.04);noise(.05,.18)},
+stance:()=>{tone(300,.14,'sawtooth',.1,0,700);noise(.05,.1)},
+trap:()=>{tone(1200,.35,'sawtooth',.12,0,200);tone(600,.3,'square',.08,.05,100);noise(.15,.3)},
+shuffle:()=>{for(let i=0;i<6;i++)noise(.05,.14,i*.06)},
+buff:()=>{tone(523,.15,'sine',.1);tone(659,.15,'sine',.1,.08);tone(784,.22,'sine',.1,.16)},
+deckout:()=>{tone(110,.6,'sawtooth',.25,0,40);noise(.4,.3)},
+discard:()=>{tone(200,.15,'triangle',.1,0,100);noise(.08,.15)}};
+const sfx=n=>{if(SND&&SFX[n])try{SFX[n]()}catch(e){}};
+const POL={violator:{face:4,trap:.2,guard:.1},wynn:{face:0,trap:.6,guard:.55},malebolgia:{face:2,trap:.3,guard:.3}};
+let UID=0;
+const mk=id=>({u:++UID,id,atk:D[id].a,hp:D[id].h,mx:D[id].h,rdy:false,fz:false,sh:false,n:1,m:'a',tg:false,fn:false});
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const mkSide=(s,b)=>{const B=b&&BOSSES[b],dk=s==='p'?(DECK||DEF_DECK):(B?B.deck:DEF_DECK),hp=s==='e'&&B?B.hp:20;return{hp,mhp:hp,deck:shuffle(dk.map(n=>BYNUM[n])),hand:[],f:[null,null,null],ko:[],trap:null}};
+const opp=s=>s==='p'?'e':'p';
+const nm=s=>s==='p'?'Tú':'Rival';
+const L=(g,t)=>{g.log.unshift(t);if(g.log.length>60)g.log.length=60};
+const E=(g,e)=>g.ev.push(e);
+const clamp=v=>Math.max(-10,Math.min(10,v));
+function draw(g,s){const S=g[s];
+ if(!S.deck.length){const had=S.ko.length;S.hp-=5;E(g,{k:'num',s,i:'hp',t:'-5',c:'r'});E(g,{k:'hit',s,i:'hp'});E(g,{k:'snd',n:'deckout'});
+  if(had){S.deck=shuffle(S.ko);S.ko=[];L(g,`${nm(s)}: mazo vacío. Baraja su Pila de KO (${had}) y recibe 5 de daño.`)}else L(g,`${nm(s)}: mazo vacío y sin Pila de KO, recibe 5 de daño.`)}
+ if(S.deck.length)S.hand.push(S.deck.pop())}
+function win(g){if(g.over)return;if(g.p.hp<=0)g.over='e';else if(g.e.hp<=0)g.over='p';if(g.over)E(g,{k:'snd',n:g.over==='p'?'win':'lose'})}
+function startTurn(g,s){g.turn=s;g.ph='main';g.ai='main';g.at=null;
+ for(const x of['p','e'])g[x].f.forEach(u=>{if(u)u.sh=false});
+ g[s].f.forEach((u,i)=>{if(u){u.tg=false;if(u.fn){u.fz=true;u.fn=false}u.rdy=!u.fz;u.n=0;const r=D[u.id].rg;if(r&&u.hp<u.mx){const h=Math.min(r,u.mx-u.hp);u.hp+=h;E(g,{k:'num',s,i,t:'+'+h+' HP',c:'g'})}}});
+ draw(g,s);L(g,`— Turno ${s==='p'?'tuyo':'del rival'} (Necroplasma: ${s==='p'?g.m:-g.m}) —`);win(g)}
+function trim(g,s){const S=g[s];while(S.hand.length>7){let k=S.hand.length-1;if(s==='e')k=S.hand.reduce((b,id,i)=>D[id].c<D[S.hand[b]].c?i:b,0);const id=S.hand.splice(k,1)[0];S.ko.push(id);E(g,{k:'snd',n:'discard'});L(g,`${nm(s)} descarta ${D[id].n} por límite de mano (7).`)}}
+function endTurn(g,s,en){if(s==='p')g.mull=false;trim(g,s);g[s].f.forEach(u=>{if(u)u.fz=false});g.m=clamp(s==='p'?-en:en);startTurn(g,opp(s))}
+function newGame(b){const g={p:mkSide('p'),e:mkSide('e',b),m:3,turn:'p',ph:'main',ai:'main',log:[],over:null,ev:[],boss:b,mull:true,at:null};
+ for(let i=0;i<4;i++){draw(g,'p');draw(g,'e')}L(g,'¡Duelo contra '+BOSSES[b].n+'! Tienes 3 de Necroplasma.');startTurn(g,'p');return g}
+const guarded=S=>S.f.some(u=>u&&u.m==='g');
+function spring(g,o,why,ref){const O=g[o],id=O.trap;if(!id)return false;O.trap=null;
+ const u=g[ref.s].f[ref.i];let neg=false;
+ E(g,{k:'snd',n:'trap'});E(g,{k:'num',s:o,i:'trap',t:'¡TRAMPA!',c:'b'});
+ L(g,`¡Trampa de ${nm(o)}! Se revela ${D[id].n} (${why==='direct'?'ataque directo':'invocación de coste 5+'}).`);
+ if(id==='fire'){if(u&&u.id!=='angela'){hit(g,ref.s,ref.i,5);L(g,`Elemental Fire quema a ${D[u.id].n}.`);if(u.hp<=0)neg=true}else L(g,'El fuego no afecta a Angela.')}
+ else if(id==='stasis'){if(u){u.fn=true;u.rdy=false;E(g,{k:'num',s:ref.s,i:ref.i,t:'❄️',c:'b'});L(g,`${D[u.id].n} queda congelado.`);neg=why==='direct'}}
+ else if(id==='bums'){if(O.ko.length){const k=O.ko.pop();O.hand.push(k);L(g,`Recupera ${D[k].n} de la Pila de KO.`)}}
+ else if(id==='media'){draw(g,o);draw(g,o);L(g,'Media Contact: roba 2 cartas.')}
+ O.ko.push(id);return neg}
+function setTrap(g,s,hi){const S=g[s],id=S.hand[hi];if(!id||S.trap||D[id].t!=='e')return;
+ S.hand.splice(hi,1);S.trap=id;if(s==='p')g.mull=false;
+ g.m=clamp(g.m+(s==='p'?-1:1));E(g,{k:'snd',n:'guard'});L(g,`${nm(s)} coloca una carta boca abajo (coste 1).`);
+ if(!g.over&&((s==='p'&&g.m<0)||(s==='e'&&g.m>0))){L(g,`${nm(s)} cruza el medidor: el turno termina.`);endTurn(g,s,Math.abs(g.m))}}
+function mulligan(g){const S=g.p;if(!g.mull)return;g.mull=false;S.deck.push(...S.hand);S.hand=[];shuffle(S.deck);for(let i=0;i<4;i++)draw(g,'p');E(g,{k:'snd',n:'shuffle'});L(g,'Mulligan: barajas tu mano y robas 4 cartas nuevas.')}
+function toggle(g,s,i){const u=g[s].f[i];if(!u||u.tg)return;u.m=u.m==='g'?'a':'g';u.tg=true;E(g,{k:'snd',n:u.m==='g'?'guard':'stance'});E(g,{k:'num',s,i,t:u.m==='g'?'🛡️ GUARDIA':'⚔️ ATAQUE',c:'b'});L(g,`${D[u.id].n} (${nm(s)}) pasa a modo ${u.m==='g'?'Guardia':'Ataque'}.`)}
+function hit(g,s,i,n,cb){const u=g[s].f[i];if(!u)return;const d=D[u.id];if(cb&&d.ar)n=Math.max(0,n-d.ar);if(d.sd&&!u.sh){u.sh=true;n=Math.max(0,n-2)}u.hp-=n;E(g,{k:'num',s,i,t:n?'-'+n:'🛡️',c:'r'});if(n)E(g,{k:'hit',s,i})}
+function sweep(g){for(const s of['p','e'])g[s].f.forEach((u,i)=>{if(u&&u.hp<=0){g[s].ko.push(u.id);g[s].f[i]=null;L(g,`${D[u.id].n} (${nm(s)}) cae a la Pila de KO.`)}})}
+function tg(g,s,id){const S=g[s],T=g[opp(s)],ix=(F,ok)=>F.map((u,i)=>u&&ok(u)?i:-1).filter(i=>i>=0);
+ if(id==='cia'||id==='biggun')return ix(S.f,()=>1);
+ if(id==='fire')return ix(T.f,u=>u.id!=='angela');
+ if(id==='stasis')return ix(T.f,()=>1);
+ return null}
+function can(g,s,id){const t=tg(g,s,id);if(t)return t.length>0;if(D[id].t==='c')return g[s].f.includes(null)||(id==='spawn'&&g[s].f.some(u=>u&&u.id==='alsimmons'));if(id==='bums')return g[s].ko.length>0;return true}
+function play(g,s,hi,o){const S=g[s],T=g[opp(s)],id=S.hand[hi],c=D[id];if(!id)return;
+ const old=c.t==='c'?S.f[o.slot]:null,ev=id==='spawn'&&old&&old.id==='alsimmons',cost=ev?c.c-2:c.c;
+ S.hand.splice(hi,1);if(s==='p')g.mull=false;g.m=clamp(g.m+(s==='p'?-cost:cost));
+ L(g,`${nm(s)} juega ${c.n} (coste ${cost}${ev?', evoluciona a Al Simmons':''}).`);
+ if(c.t==='c'){const u=mk(id);if(c.hs||(ev&&old.rdy))u.rdy=true;
+  if(id==='spawn'&&S.ko.length){u.atk+=2;E(g,{k:'num',s,i:o.slot,t:'+2 ATK',c:'g'});L(g,'Spawn gana +2 ATK por la Pila de KO.')}
+  S.f[o.slot]=u;E(g,{k:'snd',n:'place'});
+  if(c.c>=5&&T.trap){spring(g,opp(s),'summon',{s,i:o.slot});sweep(g)}
+  if(S.f[o.slot]===u){
+  if(id==='overtkill'){T.f.forEach((_,i)=>hit(g,opp(s),i,2));L(g,'Overtkill: 2 de daño a cada personaje enemigo.')}
+  if(id==='sam'){S.f.forEach((x,i)=>{if(x&&x!==u){x.atk++;E(g,{k:'num',s,i,t:'+1 ATK',c:'g'})}});L(g,'Sam & Twitch: tus demás personajes ganan +1 ATK.')}
+  if(id==='commando'){T.hp-=3;E(g,{k:'num',s:opp(s),i:'hp',t:'-3',c:'r'});E(g,{k:'hit',s:opp(s),i:'hp'});L(g,'Commando Spawn: 3 de daño directo al HP rival.')}
+  if(id==='redeemer'){const h=Math.min(4,S.mhp-S.hp);S.hp+=h;E(g,{k:'num',s,i:'hp',t:'+'+h+' HP',c:'g'});L(g,'Redeemer: recuperas '+h+' HP.')}
+  if(id==='grandma'){S.f.forEach((x,i)=>{if(x){x.hp+=2;x.mx+=2;E(g,{k:'num',s,i,t:'+2 HP',c:'g'})}});L(g,'Grandma Blake: tus personajes ganan +2 HP.')}
+  if(id==='urizen'){let b=-1;T.f.forEach((x,i)=>{if(x&&(b<0||x.atk>T.f[b].atk))b=i});if(b>=0){const x=T.f[b];E(g,{k:'num',s:opp(s),i:b,t:'KO',c:'r'});E(g,{k:'hit',s:opp(s),i:b});L(g,'Urizen destruye a '+D[x.id].n+'.');x.hp=0}}
+  if(id==='cogliostro'){g.m=clamp(g.m+(s==='p'?1:-1));draw(g,s);L(g,'Cogliostro: +1 Necroplasma y roba 1 carta.')}}}
+ else{E(g,{k:'snd',n:'energy'});
+  if(id==='cia'){const u=S.f[o.tg];E(g,{k:'num',s,i:o.tg,t:o.md==='atk'?'+3 ATK':'+4 HP',c:'g'});if(o.md==='atk')u.atk+=3;else{u.hp+=4;u.mx+=4}L(g,`${D[u.id].n} recibe ${o.md==='atk'?'+3 ATK':'+4 HP'}.`)}
+  if(id==='fire'){const u=T.f[o.tg];hit(g,opp(s),o.tg,5);L(g,`Elemental Fire quema a ${D[u.id].n}.`)}
+  if(id==='bums'&&S.ko.length){const k=S.ko.pop();S.hand.push(k);L(g,`Recupera ${D[k].n} de la Pila de KO.`)}
+  if(id==='blast'){T.hp-=3;S.hp-=1;L(g,`Necro-Blast: -3 HP al rival y -1 HP propio (${nm(s)}).`)}
+  if(id==='stasis'){T.f[o.tg].fz=true;E(g,{k:'num',s:opp(s),i:o.tg,t:'❄️',c:'b'});L(g,`${D[T.f[o.tg].id].n} queda congelado.`)}
+  if(id==='biggun'){const u=S.f[o.tg];u.atk+=4;E(g,{k:'num',s,i:o.tg,t:'+4 ATK',c:'g'});if(u.n&&!u.fz)u.rdy=true;L(g,'Big Gun: '+D[u.id].n+' gana +4 ATK.')}
+  if(id==='media'){draw(g,s);draw(g,s);L(g,'Media Contact: roba 2 cartas.')}
+  S.ko.push(id)}
+ sweep(g);win(g);
+ if(!g.over&&((s==='p'&&g.m<0)||(s==='e'&&g.m>0))){L(g,`${nm(s)} cruza el medidor: el turno termina.`);endTurn(g,s,Math.abs(g.m))}}
+function attack(g,s,ai,ti){const S=g[s],o=opp(s),T=g[o],a=S.f[ai];if(!a||!a.rdy||a.m==='g')return;
+ if(ti<0){if(guarded(T))return;a.rdy=false;E(g,{k:'lunge',s,i:ai});
+  if(T.trap&&spring(g,o,'direct',{s,i:ai})){sweep(g);win(g);return}
+  if(a.hp<=0){sweep(g);win(g);return}
+  T.hp-=a.atk;E(g,{k:'snd',n:'hit'});E(g,{k:'num',s:o,i:'hp',t:'-'+a.atk,c:'r'});E(g,{k:'hit',s:o,i:'hp'});L(g,`${D[a.id].n} (${nm(s)}) ataca directo: -${a.atk} HP.`)}
+ else{const t=T.f[ti];if(!t)return;a.rdy=false;E(g,{k:'lunge',s,i:ai});E(g,{k:'snd',n:'hit'});const d=D[t.id];let av=a.atk;if(a.id==='angela'&&(d.d||d.c>=4))av+=2;
+  hit(g,o,ti,av,1);hit(g,s,ai,t.atk,1);L(g,`${D[a.id].n} (${nm(s)}) ataca a ${d.n}: ${av} de daño, recibe ${t.atk}.`)}
+ sweep(g);win(g)}
+function aiOpts(g,s,id){const S=g[s],T=g[opp(s)],t=tg(g,s,id);
+ if(D[id].t==='c'){const e=S.f.indexOf(null);return{slot:e>=0?e:S.f.findIndex(u=>u&&u.id==='alsimmons')}}
+ if(id==='cia'||id==='biggun'){const i=t.sort((a,b)=>S.f[b].atk-S.f[a].atk)[0];return{tg:i,md:S.f[i].hp>=5?'atk':'hp'}}
+ const sc=i=>(id==='fire'&&T.f[i].hp<=5?100:0)+T.f[i].atk;
+ if(t)return{tg:t.sort((a,b)=>sc(b)-sc(a))[0]};
+ return{}}
+function aiStep(g){const s='e',S=g.e,P=g.p,en=-g.m,pol=POL[g.boss]||POL.malebolgia;
+ if(g.ai==='main'){let best=-1,bs=0;
+  if(g.at===null)g.at=Math.random()<pol.trap;
+  if(g.at&&!S.trap&&en>=1){const i=S.hand.findIndex(id=>id==='stasis'||(id==='fire'&&!tg(g,s,id).some(k=>P.f[k].hp<=5)));if(i>=0){setTrap(g,s,i);return}}
+  S.hand.forEach((id,i)=>{const c=D[id];if(c.c>en||!can(g,s,id))return;let sc=c.c*2;
+   if(id==='blast')sc=(P.hp<=3||(S.hp>8&&!P.f.some(Boolean)))?20:0;
+   if(id==='fire')sc=tg(g,s,id).some(k=>P.f[k].hp<=5)?14:6;
+   if(id==='stasis')sc=P.f.some(u=>u&&u.atk>=6)?9:2;
+   if(id==='bums')sc=5;
+   if(id==='cia')sc=7;if(id==='biggun')sc=8;if(id==='media')sc=S.hand.length<5?6:1;
+   if(c.t==='c'&&!S.f.some(Boolean))sc+=5;
+   if(sc>bs){bs=sc;best=i}});
+  if(best>=0){play(g,s,best,aiOpts(g,s,S.hand[best]));return}
+  g.ai='stance';return}
+ if(g.ai==='stance'){S.f.forEach((u,i)=>{if(u&&u.m==='g'&&!u.tg&&!u.fz&&(P.hp<=u.atk||Math.random()>pol.guard))toggle(g,s,i)});g.ai='combat';return}
+ if(g.ai==='combat'){const ai=S.f.findIndex(u=>u&&u.rdy&&u.m!=='g');if(ai<0){g.ai='final';return}
+  const a=S.f[ai],face=!guarded(P);
+  let bi=-1,bsc=0;
+  P.f.forEach((t,i)=>{if(!t)return;const d=D[t.id],av=a.atk+(a.id==='angela'&&(d.d||d.c>=4)?2:0);
+   const k=av>=t.hp+(D[t.id].sd&&!t.sh?2:0),sv=t.atk<a.hp;if(!k&&!sv)return;
+   const sc=(k?3:0)+(sv?2:0)+d.c/10;if(sc>bsc){bsc=sc;bi=i}});
+  const fs=face?(P.hp<=a.atk?100:(P.f.some(Boolean)?1+pol.face:6+pol.face)):-1;
+  if(fs>bsc){attack(g,s,ai,-1);return}
+  if(bi<0){a.rdy=false;return}
+  attack(g,s,ai,bi);return}
+ if(g.ai==='final'){S.f.forEach((u,i)=>{if(u&&u.m==='a'&&!u.tg&&!u.rdy&&Math.random()<(S.hp<=6?.8:pol.guard))toggle(g,s,i)});g.ai='end';return}
+ const i=S.hand.findIndex(id=>D[id].t==='c'&&can(g,s,id)&&D[id].c>en);
+ if(i>=0&&Math.random()<.5){play(g,s,i,aiOpts(g,s,S.hand[i]));return}
+ L(g,'El rival pasa su turno.');endTurn(g,s,3)}
+
+const Art=({num,icon})=>{const [,f]=useState(0);
+ const src=[IM[num],`./cartas/${num}.jpg`,`./cartas/${num}.png`].find(s=>s&&!BAD.has(s));
+ return src?html`<img src=${src} alt="" draggable="false" onError=${()=>{BAD.add(src);f(x=>x+1)}}/>`:html`<svg viewBox="0 0 60 80"><rect width="60" height="80" fill="#12090a"/><circle cx="30" cy="36" r="20" fill="none" stroke="#39ff14" stroke-width="2"/><circle cx="30" cy="36" r="15" fill="none" stroke="#c1121f" stroke-width="1"/><text x="30" y="44" text-anchor="middle" font-size="22">${icon}</text><text x="30" y="72" text-anchor="middle" fill="#8a9a9e" font-size="9" font-family="system-ui">${num}</text></svg>`};
+const Card=({id,u,cls='',...p})=>{const c=D[id],a=u?u.atk:c.a,h=u?u.hp:c.h,ch=c.t==='c';
+ return html`<div className=${'card '+c.t+' '+cls+(u&&u.m==='g'?' guard':'')+(u&&!u.rdy&&!u.fz&&!u.fn?' tired':'')} title=${c.n+': '+c.x} ...${p}>
+ <div className="lc"><div className="sk">💀</div><div className="sv g"><small>COSTE</small>${c.c}</div><div className="sv r"><small>ATK</small>${ch?a:'–'}</div><div className="sv y"><small>HP</small>${ch?h:'–'}</div><div className="no">${c.number}</div></div>
+ <div className="rc"><div className="fc">${c.f}</div><div className="fr"><${Art} num=${c.number} icon=${c.i}/></div><div className="nm">${c.n}</div></div>
+ ${u?html`<div className="bd" title=${u.fz||u.fn?'Congelado':u.rdy?'Listo para atacar':'Agotado'}>${u.fz||u.fn?'❄️':u.rdy?'⚔️':'💤'}</div>`:null}${u&&u.m==='g'?html`<div className="md" title="Modo Guardia">🛡️</div>`:null}</div>`};
+const Manager=({onClose,onSave,onStart})=>{
+ const [num,setNum]=useState(CARDS_DATABASE[0].number),[tx,setTx]=useState((DECK||DEF_DECK).join(', ')),[msg,setMsg]=useState('');
+ const arr=tx.split(/[\s,;]+/).filter(Boolean).map(x=>x.padStart(3,'0')),bad=arr.filter(n=>!BYNUM[n]);
+ const persist=()=>{try{localStorage.setItem('spawnTcgImgs',JSON.stringify(IM));return true}catch(e){setMsg('No hay espacio en localStorage: usa imágenes más pequeñas o quita otras.');return false}};
+ const onFiles=e=>{const fs=[...e.target.files];fs.forEach(f=>{const m=f.name.match(/(\d{3})/),n=fs.length===1?num:(m&&BYNUM[m[1]]?m[1]:null);
+  if(!n){setMsg(`"${f.name}": el nombre no tiene un número de carta válido (ej. 001.jpg).`);return}
+  const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,360/im.width),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);IM[n]=c.toDataURL('image/jpeg',.82);if(persist())setMsg('Imagen asignada a la carta '+n+'.');onSave()};im.src=r.result};r.readAsDataURL(f)});e.target.value=''};
+ const save=go=>{if(arr.length!==20||bad.length){setMsg(bad.length?'Números inválidos: '+bad.join(', '):`El mazo debe tener 20 cartas (tienes ${arr.length}).`);return}
+  DECK=arr;try{localStorage.setItem('spawnTcgDeck',JSON.stringify(arr))}catch(e){}setMsg('Mazo guardado: se usa desde la próxima partida.');onSave();if(go)onStart()};
+ return html`<div className="ov"><div className="mgr">
+ <h2>IMÁGENES POR NÚMERO DE CARTA</h2>
+ <p className="hint">Elige una carta y su imagen, o selecciona varios archivos llamados 001.jpg, 002.png… Se guardan en este navegador. En tu HTML exportado también se cargan solas desde ./cartas/NNN.jpg.</p>
+ <select value=${num} onChange=${e=>setNum(e.target.value)}>${CARDS_DATABASE.map(k=>html`<option key=${k.number} value=${k.number}>${k.number} · ${k.name}</option>`)}</select>
+ <div className="ctl"><input type="file" accept="image/*" multiple onChange=${onFiles}/><button onClick=${()=>{delete IM[num];persist();onSave();setMsg('Imagen quitada de '+num)}}>Quitar imagen ${num}</button></div>
+ <h2>TU MAZO (20 CARTAS)</h2>
+ <textarea rows="3" value=${tx} onChange=${e=>setTx(e.target.value)}></textarea>
+ <div className="hint">${arr.length}/20 cartas${bad.length?' · inválidos: '+bad.join(', '):''}</div>
+ <div className="ctl">${CARDS_DATABASE.map(k=>html`<button key=${k.number} title=${k.name} onClick=${()=>setTx(tx.trim().replace(/[,;]$/,'')+(tx.trim()?', ':'')+k.number)}>${k.number}</button>`)}</div>
+ <div className="ctl"><button onClick=${()=>setTx(arr.slice(0,-1).join(', '))}>Quitar última</button><button onClick=${()=>setTx(DEF_DECK.join(', '))}>Mazo por defecto</button></div>
+ <p className="hint">${msg}</p>
+ <div className="ctl"><button onClick=${()=>save(false)}>GUARDAR MAZO</button><button onClick=${()=>save(true)}>GUARDAR Y NUEVA PARTIDA</button><button className="red" onClick=${onClose}>CERRAR</button></div></div></div>`};
+
+function App(){
+ const [g,setG]=useState(()=>newGame('violator'));
+ const [sh,setSh]=useState(null),[su,setSu]=useState(null),[ch,setCh]=useState(null),[zm,setZm]=useState(null),[mg,setMg]=useState(false),[,setVer]=useState(0),[pick,setPick]=useState(true),[dc,setDc]=useState(false),[snd,setSnd]=useState(SND),[fx,setFx]=useState([]),[an,setAn]=useState({});
+ const upd=f=>setG(o=>{const n=structuredClone(o);n.ev=[];f(n);return n});
+ const FL=(s,i)=>fx.filter(x=>x.s===s&&x.i===i).map(x=>html`<div key=${x.id} className=${'fl '+x.c}>${x.t}</div>`);
+ const runEv=ev=>{const did={},once=n=>{if(!did[n]){did[n]=1;sfx(n)}};
+  const add=(key,cl)=>{setAn(a=>({...a,[key]:(a[key]||'')+' '+cl}));setTimeout(()=>setAn(a=>{const n={...a};delete n[key];return n}),520)};
+  ev.forEach(e=>{if(e.k==='snd'){once(e.n);return}const id=++FID;
+   if(e.k==='num'){setFx(f=>[...f,{...e,id}]);setTimeout(()=>setFx(f=>f.filter(x=>x.id!==id)),1100);
+    if(e.c==='g'){once('buff');add(e.s+e.i,'buff')}else if(e.c==='r'&&e.t!=='🛡️')once('hit')}
+   else add(e.s+e.i,e.k==='lunge'?'lunge'+e.s:e.k)})};
+ const start=k=>{setG(newGame(k));setPick(false);setSh(null);setSu(null);setCh(null);setZm(null);sfx('energy')};
+ const mine=g.turn==='p'&&!g.over;
+ useEffect(()=>{if(g.turn!=='e'||g.over)return;const t=setTimeout(()=>upd(aiStep),g.ai==='main'?900:700);return()=>clearTimeout(t)},[g]);
+ useEffect(()=>{setSh(null);setSu(null);setDc(false)},[g.turn]);
+ useEffect(()=>{if(g.ev&&g.ev.length)runEv(g.ev)},[g]);
+ const reset=()=>setPick(true);
+ const hid=mine&&g.ph==='main'&&sh!=null?g.p.hand[sh]:null;
+ const tl=hid?tg(g,'p',hid):null;
+ const doPlay=(hi,o)=>{upd(n=>play(n,'p',hi,o));setSh(null);setCh(null)};
+ const clickSlot=(s,i)=>{if(!mine)return;
+  if(g.ph==='main'){if(!hid)return;const c=D[hid];
+   if(c.t==='c'&&s==='p'&&(!g.p.f[i]||(hid==='spawn'&&g.p.f[i].id==='alsimmons')))return doPlay(sh,{slot:i});
+   if((hid==='cia'||hid==='biggun')&&s==='p'&&tl.includes(i))return hid==='cia'?setCh({tg:i}):doPlay(sh,{tg:i});
+   if((hid==='fire'||hid==='stasis')&&s==='e'&&tl.includes(i))return doPlay(sh,{tg:i});return}
+  const u=g[s].f[i];if(!u)return;
+  if(s==='p'){if(u.rdy&&u.m!=='g')setSu(i)}
+  else if(su!=null){upd(n=>attack(n,'p',su,i));setSu(null)}};
+ const face=()=>{if(mine&&g.ph==='combat'&&su!=null&&!guarded(g.e)){upd(n=>attack(n,'p',su,-1));setSu(null)}};
+ const Row=s=>{const S=g[s];return html`<div className="row fld">
+  <div className="pile"><span>MAZO</span><b>${S.deck.length}</b></div>
+  <div className="pile"><span>PILA KO</span><b>${S.ko.length}</b><span>${S.ko.length?D[S.ko[S.ko.length-1]].n:'vacía'}</span></div>
+  <div className=${'slot trapslot'+(an[s+'trap']||'')} title=${s==='p'&&S.trap?'Tu carta oculta: '+D[S.trap].n:'Ranura de carta oculta'}><span className="lbl">OCULTA</span>${S.trap?html`<div className="card back" onPointerEnter=${()=>s==='p'&&setZm({id:S.trap})}></div>`:null}${FL(s,'trap')}</div>
+  ${S.f.map((u,i)=>{let gl='';
+   if(hid){const c=D[hid];if(c.t==='c'&&s==='p'&&(!u||(hid==='spawn'&&u.id==='alsimmons')))gl='glow';else if((hid==='cia'||hid==='biggun')&&s==='p'&&tl.includes(i))gl='glow';else if((hid==='fire'||hid==='stasis')&&s==='e'&&tl.includes(i))gl='glow'}
+   if(mine&&g.ph==='combat'){if(s==='p'&&u&&u.rdy&&u.m!=='g')gl='rdyc';if(s==='e'&&u&&su!=null)gl='glow';if(s==='p'&&su===i)gl='sel'}
+   return html`<div key=${i} className=${'slot '+gl+(an[s+i]||'')} onClick=${()=>clickSlot(s,i)}>${u?html`<${Card} id=${u.id} u=${u} onPointerEnter=${()=>setZm({id:u.id,u})}/>`:null}${u&&s==='p'&&mine&&!u.tg?html`<button className="mbtn" onClick=${e=>{e.stopPropagation();upd(n=>toggle(n,'p',i));if(su===i)setSu(null)}}>${u.m==='g'?'⚔️ ATAQUE':'🛡️ GUARDIA'}</button>`:null}${FL(s,i)}</div>`})}</div>`};
+ const Hp=s=>{const hp=Math.max(0,g[s].hp),can=s==='e'&&mine&&g.ph==='combat'&&su!=null&&!guarded(g.e);
+  return html`<div className=${'hp '+(can?'glow':'')+(an[s+'hp']||'')} onClick=${s==='e'?face:null}><b>${s==='e'?BOSSES[g.boss].n:'TÚ'}</b><div className="bar"><div style=${{width:hp/g[s].mhp*100+'%'}}></div></div><b>♥ ${hp}</b>${FL(s,'hp')}</div>`};
+ const en=g.turn==='p'?g.m:-g.m;
+ const needsT=hid&&tl!==null;
+ const hint=g.over?'Partida terminada.':g.turn==='e'?'Turno del rival…':g.ph==='main'?(hid?(needsT?'Elige un objetivo resaltado.':'Pulsa JUGAR o elige una zona vacía.'):'Elige una carta de tu mano.'):(su==null?'Elige un personaje con ⚔ y luego su objetivo. Si el rival no tiene personajes en Guardia 🛡️, puedes atacar su HP.':'Elige el objetivo enemigo.');
+ return html`<${React.Fragment}><div className="top"><h1>SPAWN TCG</h1><button onClick=${()=>{SND=!SND;try{localStorage.setItem('spawnTcgSnd',SND?'1':'0')}catch(e){}setSnd(SND);sfx('place')}}>${snd?'🔊 SONIDO ON':'🔇 SONIDO OFF'}</button></div><div className="app">
+ <div className="side"><div className="pan">
+  <div className="zoom">${zm?html`<${Card} id=${zm.id} u=${zm.u}/>`:null}</div>
+  ${zm?html`<div className="fx"><b>${D[zm.id].n}</b> <small>#${D[zm.id].number} · ${D[zm.id].f}</small><p>${D[zm.id].x}</p></div>`:html`<p style=${{color:'#8a9a9e'}}>Pasa el ratón (o toca) una carta para verla en grande.</p>`}
+  <h2>HISTORIAL</h2><div className="log">${g.log.map((t,i)=>html`<div key=${i}>${t}</div>`)}</div></div></div>
+ <div className="main">
+  ${Hp('e')}
+  <div className="row">${g.e.hand.map((_,i)=>html`<div key=${i} className="card back" style=${{'--cw':'38px'}}></div>`)}</div>
+  ${Row('e')}
+  <div className="ml"><span>◀ RIVAL (-10)</span><b style=${{color:'#39ff14'}}>Necroplasma de ${g.turn==='p'?'tu':'su'} turno: ${Math.max(0,en)}</b><span>TÚ (+10) ▶</span></div>
+  <div className="meter">${Array.from({length:21},(_,k)=>{const v=k-10;return html`<i key=${k} className=${v===g.m?'on':v<0?'n':v>0?'p':''}>${v===g.m?v:''}</i>`})}</div>
+  ${Row('p')}
+  <div className="ctl">
+   <div className="hint">${hint}</div>
+   ${hid&&!needsT&&can(g,'p',hid)?html`<button onClick=${()=>doPlay(sh,D[hid].t==='c'?{slot:g.p.f.indexOf(null)>=0?g.p.f.indexOf(null):g.p.f.findIndex(u=>u&&u.id==='alsimmons')}:{})}>JUGAR</button>`:null}
+   ${hid&&D[hid].t==='e'&&!g.p.trap?html`<button onClick=${()=>{upd(n=>setTrap(n,'p',sh));setSh(null)}}>COLOCAR OCULTA (1)</button>`:null}
+   ${mine&&g.mull&&g.ph==='main'?html`<button className="red" onClick=${()=>{upd(n=>mulligan(n));setSh(null);setZm(null)}}>Cambiar Mano (Mulligan)</button>`:null}
+   <button disabled=${!mine||g.ph!=='main'} onClick=${()=>{upd(n=>{n.ph='combat';L(n,'Fase de combate.')});setSh(null)}}>IR A COMBATE</button>
+   <button disabled=${!mine} onClick=${()=>{if(g.p.hand.length>7)setDc(true);else upd(n=>{L(n,'Terminas tu turno.');endTurn(n,'p',3)})}}>TERMINAR TURNO</button>
+   <button onClick=${()=>setMg(true)}>CARGAR IMÁGENES / MAZOS</button><button className="red" onClick=${reset}>NUEVA PARTIDA</button></div>
+  <div className="row hand">${g.p.hand.map((id,i)=>html`<${Card} key=${i} id=${id} cls=${(sh===i?'sel ':'')+(can(g,'p',id)?'':'dim')} onClick=${()=>{setZm({id});if(mine&&g.ph==='main')setSh(sh===i?null:i)}} onPointerEnter=${()=>setZm({id})}/>`)}</div>
+  ${Hp('p')}
+ </div>
+ ${dc&&g.p.hand.length>7?html`<div className="ov"><div className="mgr"><h2>LÍMITE DE MANO: 7</h2><p>Descarta ${g.p.hand.length-7} carta(s) a la Pila de KO:</p><div className="row">${g.p.hand.map((id,i)=>html`<${Card} key=${i} id=${id} onClick=${()=>{upd(n=>{const d=n.p.hand.splice(i,1)[0];n.p.ko.push(d);E(n,{k:'snd',n:'discard'});L(n,'Descartas '+D[d].n+' por límite de mano.');if(n.p.hand.length<=7){L(n,'Terminas tu turno.');endTurn(n,'p',3)}});if(g.p.hand.length-1<=7)setDc(false)}} onPointerEnter=${()=>setZm({id})}/>`)}</div><div className="ctl"><button className="red" onClick=${()=>setDc(false)}>Cancelar</button></div></div></div>`:null}
+ ${ch?html`<div className="ov"><div><h2>C.I.A. Contact</h2><p>Elige la mejora:</p><div className="ctl" style=${{justifyContent:'center'}}>
+  <button onClick=${()=>doPlay(sh,{tg:ch.tg,md:'atk'})}>+3 ATK</button><button onClick=${()=>doPlay(sh,{tg:ch.tg,md:'hp'})}>+4 HP</button><button className="red" onClick=${()=>setCh(null)}>Cancelar</button></div></div></div>`:null}
+ ${pick?html`<div className="ov"><div className="mgr"><h1>ELIGE RIVAL</h1><div className="bosses">${Object.entries(BOSSES).map(([k,b])=>html`<button key=${k} className="boss" onClick=${()=>start(k)}><div className="bi">${b.i}</div><b>${b.n}</b><small>♥ ${b.hp} HP</small><p>${b.d}</p></button>`)}</div><div className="ctl"><button onClick=${()=>setMg(true)}>CARGAR IMÁGENES / MAZOS</button></div></div></div>`:null}
+ ${mg?html`<${Manager} onClose=${()=>setMg(false)} onSave=${()=>setVer(v=>v+1)} onStart=${()=>{setMg(false);start(g.boss)}}/>`:null}
+ ${g.over?html`<div className="ov"><div><h1>${g.over==='p'?'VICTORIA':'DERROTA'}</h1><p>${g.over==='p'?'El Infierno se queda sin campeón.':'El rival te deja sin HP.'}</p><button onClick=${reset}>NUEVA PARTIDA</button></div></div>`:null}
+ </div></${React.Fragment}>`}
+ReactDOM.createRoot(document.getElementById('r')).render(html`<${App}/>`);
+</script></body></html>
+
