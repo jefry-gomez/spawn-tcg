@@ -72,7 +72,7 @@ const html=htm.bind(React.createElement);
 const CARDS_DATABASE=[
 {"number":"001","key":"spawn","name":"Spawn","type":"personaje","faction":"Earthly Forces","cost":4,"atk":6,"hp":7,"demon":true,"icon":"💀","effect":"Al entrar, si tu Pila de KO tiene cartas, gana +2 ATK."},
 {"number":"002","key":"angela","name":"Angela","type":"personaje","faction":"Heaven","cost":3,"atk":5,"hp":5,"icon":"🪽","effect":"Al atacar a un demonio o personaje de coste 4+, gana +2 ATK en ese combate."},
-{"number":"003","key":"violator","name":"Violator","type":"personaje","faction":"Hellspawn","cost":4,"atk":7,"hp":5,"demon":true,"haste":true,"icon":"👹","effect":"Prisa: puede atacar el mismo turno en que entra."},
+{"number":"004","key":"clown","name":"Clown","type":"personaje","faction":"Hellspawn","cost":3,"atk":4,"hp":6,"demon":true,"icon":"🤡","effect":"Piel Gruesa: Reduce en 1 el daño de combate que recibe."},
 {"number":"005","key":"overtkill","name":"Overtkill","type":"personaje","faction":"Hellspawn","cost":6,"atk":8,"hp":9,"demon":true,"icon":"🦾","effect":"Al entrar, hace 2 de daño a cada personaje enemigo."},
 {"number":"015","key":"alsimmons","name":"Al Simmons","type":"personaje","faction":"Earthly Forces","cost":2,"atk":3,"hp":3,"icon":"🕴️","effect":"Evolución: juega Spawn (001) sobre él pagando 2 menos; Spawn conserva su estado de ataque."},
 {"number":"041","key":"billy","name":"Billy Kincaid","type":"personaje","faction":"Earthly Forces","cost":2,"atk":4,"hp":2,"haste":true,"icon":"🔪","effect":"Prisa: puede atacar el mismo turno en que entra."},
@@ -87,7 +87,7 @@ const CARDS_DATABASE=[
 const TY={personaje:'c',mejora:'m',evento:'e'},D={},BYNUM={};
 CARDS_DATABASE.forEach(k=>{BYNUM[k.number]=k.key;D[k.key]={number:k.number,n:k.name,t:TY[k.type],c:k.cost,a:k.atk,h:k.hp,f:k.faction,x:k.effect,d:k.demon,hs:k.haste,sd:k.shield,i:k.icon}});
 const DEF_DECK=["001","001","002","002","003","003","070","070","117","117","015","041","005","051","051","052","053","053","054","054"];
-let DECK=null;try{const x=JSON.parse(localStorage.getItem('spawnTcgDeck')||'null');if(Array.isArray(x)&&x.length===20&&x.every(n=>BYNUM[n]))DECK=x}catch(e){}
+let DECK=null;try{const x=JSON.parse(localStorage.getItem('spawnTcgDeck')||'null');if(Array.isArray(x)&&x.length===20&&x.every(n=>BYNUM[n]))DECK=x}catch(e){}if(!DECK)DECK=["001","001","002","002","003","003","004","004","005","015","041","051","052","053","054","070","070","117","117","119"];
 let IM={};try{IM=JSON.parse(localStorage.getItem('spawnTcgImgs')||'{}')}catch(e){}
 const BAD=new Set();
 let UID=0;
