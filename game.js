@@ -1,4 +1,4 @@
-/* SPAWN TCG: Necroplasma · game.js
+﻿/* SPAWN TCG: Necroplasma · game.js
    Reglas, IA, audio sintetizado e interfaz. Usa CARDS_DATABASE/D/BYNUM de cards.js. */
 /* COMPAT (temporal): si cards.js aún trae la carta 120 como personaje con clave "Fast Attack",
    se convierte aquí en el Evento "fast_attack". Cuando actualices cards.js este bloque deja de actuar y puedes borrarlo. */
@@ -246,7 +246,7 @@ function render(){const x=ctx(),en=g.turn==='p'?g.m:-g.m,needsT=x.hid&&x.tl!==nu
  if(g.over){$('end-title').textContent=g.over==='p'?'VICTORIA':'DERROTA';$('end-msg').textContent=g.over==='p'?'El Infierno se queda sin campeón.':'El rival te deja sin HP.'}
  const dv=dc&&g.p.hand.length>7;$('ov-disc').hidden=!dv;
  if(dv){$('disc-n').textContent=g.p.hand.length-7;$('disc-hand').innerHTML=g.p.hand.map((id,i)=>cardHTML(id,null,'',`data-d="${i}" data-zid="${id}"`)).join('')}
- $('btn-sound').textContent=SND?'🔊 SONIDO ON':'🔇 SONIDO OFF'}
+ if($('btn-sound'))$('btn-sound').textContent=SND?'🔊 SONIDO ON':'🔇 SONIDO OFF'}
 
 /* ---- Eventos visuales: números flotantes, destellos, sonido ---- */
 function floatNum(e){const t=el(e.s,e.i);if(!t)return;const r=t.getBoundingClientRect(),d=document.createElement('div');
@@ -314,7 +314,7 @@ function boot(){
    if(!n){mgrMsg(`"${f.name}": el nombre no tiene un número de carta válido (ej. 001.jpg).`);return}
    const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,360/im.width),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);IM[n]=c.toDataURL('image/jpeg',.82);if(persist())mgrMsg('Imagen asignada a la carta '+n+'.');render()};im.src=r.result};r.readAsDataURL(f)});e.target.value=''};
  $('btn-bag').onclick=mgrOpen;$('btn-menu-bag').onclick=mgrOpen;
- $('btn-sound').onclick=()=>{SND=!SND;try{localStorage.setItem('spawnTcgSnd',SND?'1':'0')}catch(e){}sfx('place');render()};
+ if($('btn-sound'))$('btn-sound').onclick=()=>{SND=!SND;try{localStorage.setItem('spawnTcgSnd',SND?'1':'0')}catch(e){}sfx('place');render()};
  $('btn-new').onclick=()=>{pick=true;render()};$('end-new').onclick=()=>{pick=true;render()};
  $('btn-play').onclick=()=>{const hid=ctx().hid;if(hid==null)return;const e=g.p.f.indexOf(null);doPlay(sh,D[hid].t==='c'?{slot:e>=0?e:g.p.f.findIndex(u=>u&&u.id==='alsimmons')}:{})};
  $('btn-trap').onclick=()=>{const hi=sh;sh=null;upd(n=>setTrap(n,'p',hi))};
@@ -335,3 +335,4 @@ function boot(){
   const [s,i]=(c.dataset.zu||'').split(','),u=s?g[s].f[+i]:null;if(zm&&zm.id===c.dataset.zid&&zm.u===u)return;zm={id:c.dataset.zid,u};renderZoom()});
  g=newGame('violator');render()}
 boot();
+
